@@ -636,6 +636,7 @@ After completing a story, verify:
 - [ ] Added to `mkdocs.yml` navigation in chronological order by birth year
 - [ ] Grid card added to `docs/stories/index.md`
 - [ ] Any safety-filter softenings are committed so future regenerations don't regress
+- [ ] No real brand names, product names, or trademarks appear in any image prompt (brands are OK in narrative prose only)
 
 ## Appendix: Lessons Learned from the IB Functions Textbook (2026-04-05)
 

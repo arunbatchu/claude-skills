@@ -124,6 +124,7 @@ def generate_checklist(project_path: Path) -> str:
         "{faq_quality_report}": status_icon(results["learning_graph"]["faq_quality_report"]),
         "{faq_coverage_gaps}": status_icon(results["learning_graph"]["faq_coverage_gaps"]),
         "{quiz_generation_report}": status_icon(results["learning_graph"]["quiz_generation_report"]),
+        "{reading_level_analysis}": status_icon(results["learning_graph"]["reading_level_analysis"]),
 
         # Content Generation
         "{chapters}": status_icon(results["content_generation"]["chapters"]),
