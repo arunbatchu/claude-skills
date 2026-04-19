@@ -8,7 +8,7 @@ description: This skill installs an interactive learning graph viewer applicatio
 
 Installs a complete interactive graph viewer into `/docs/sims/graph-viewer/` by copying 4 template files and replacing the TITLE placeholder. Total install time: under 2 minutes.
 
-**Template files are in this skill at:** `references/learning-graph-viewer-templates/`
+**Template files are in this skill at:** `references/assets/`
 
 ## Step 1: Verify Prerequisites
 
@@ -43,7 +43,7 @@ If any classifierName equals its ID, fix taxonomy-names.json and regenerate lear
 ## Step 2: Copy Template Files
 
 ```bash
-SKILL_DIR="$HOME/.claude/skills/book-installer/references/learning-graph-viewer-templates"
+SKILL_DIR="$HOME/.claude/skills/book-installer/references/assets"
 mkdir -p docs/sims/graph-viewer
 cp "$SKILL_DIR/local.css"  docs/sims/graph-viewer/local.css
 cp "$SKILL_DIR/script.js"  docs/sims/graph-viewer/script.js
