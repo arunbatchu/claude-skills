@@ -10,6 +10,21 @@ Installs a complete interactive graph viewer into `/docs/sims/graph-viewer/` by 
 
 **Template files are in this skill at:** `references/assets/`
 
+## Viewer Version
+
+Current template version: **v0.04** (batched DataSet updates, loading-message indicator, version badge in top-right corner).
+
+When you ship a behavior change to the viewer templates, bump this number in **three** places so future debugging can trace which version of the viewer is deployed where:
+
+1. The version in this file (the line above).
+2. `references/assets/main.html` — the `<div id="viewer-version">v0.04</div>` line.
+3. The changelog entry below.
+
+### Changelog
+
+- **v0.04** — Fixed slow check-all/uncheck-all (batched `DataSet.update(array)` instead of per-item calls). Added `Loading concepts and edges…` indicator removed on `stabilizationIterationsDone`. Added version badge in top-right corner. Precomputed `nodesWithDeps` / `groupCounts` at load. Assigned explicit integer IDs to edges so batched updates can target them.
+- **v0.03** — Initial template split from inline code into `references/assets/` (commit `89275ae6`).
+
 ## Step 1: Verify Prerequisites
 
 ```bash
