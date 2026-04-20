@@ -62,6 +62,7 @@ Book Installer Features (most → least common):
 33. Document status indicators - colored dots in nav showing page lifecycle state
 34. Kanban board - GitHub Projects board for tracking textbook development
 35. Mascot chapter updater - retrofit existing chapters with mascot admonitions
+36. About page - professional about.md with motivation, author bio, and citations
 
 Type a number or feature name to install.
 
@@ -122,6 +123,7 @@ Match the user's request to the appropriate installation guide:
 | document status, page status, status indicators, status dots, nav status, page lifecycle, review workflow | `references/document-status.md` | Add colored status dots to nav sidebar |
 | kanban, project board, kanban board, project management, github project, task board, milestones, 34 | `references/kanban-board.md` | Create GitHub Projects Kanban board for textbook development |
 | mascot chapter, update chapter, retrofit mascot, place mascot, add mascot to chapter, mascot placement, 35 | `references/mascot-chapter-updater.md` | Retrofit an existing chapter with mascot admonitions using placement rules |
+| about page, about, about.md, about this book, author bio, cite this book, citation, 36 | `references/about-page.md` | Generate professional about page with motivation, bio, and citations |
 
 ### Decision Tree
 
@@ -167,6 +169,9 @@ Want a GitHub Projects Kanban board to track textbook development?
 
 Want to retrofit an existing chapter with mascot admonitions?
   → YES: mascot-chapter-updater.md
+
+Want to generate a professional about page with author bio and citations?
+  → YES: about-page.md
 
 Want to add a specific feature (equations, quizzes, feedback, etc.)?
   → YES: mkdocs-features.md (then follow specific feature instructions)
@@ -488,7 +493,12 @@ See the [URI Scheme documentation](https://dmccreary.github.io/intelligent-textb
 **Routing:** Keywords "kanban", "project board" → `references/kanban-board.md`
 **Action:** Read kanban-board.md, verify gh auth with project scope, create the GitHub Project, link to repo, populate milestones, create docs/project-management.md, update nav and README
 
-### Example 13: Add Mascots to an Existing Chapter
+### Example 13: Generate About Page
+**User:** "create an about page" or "add about.md with author bio and citations"
+**Routing:** Keywords "about page", "about", "author bio", "citation" → `references/about-page.md`
+**Action:** Read about-page.md, gather project variables from mkdocs.yml/course-description.md, generate docs/about.md with all sections (motivation, author bio, citation formats), add to navigation
+
+### Example 14: Add Mascots to an Existing Chapter
 **User:** "add Sparky admonitions to chapter 2" or "place the mascot in docs/chapters/02-ohms-law/index.md"
 **Routing:** Keywords "mascot chapter", "place mascot", "add mascot to chapter" → `references/mascot-chapter-updater.md`
 **Action:** Read mascot-chapter-updater.md, survey the chapter, propose a placement plan with line numbers, wait for user confirmation, apply edits, run validate-chapter-mascots.py, and address any flags
