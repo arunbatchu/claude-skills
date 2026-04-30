@@ -101,6 +101,7 @@ Match the user's request to the appropriate installation guide:
 | Trigger Keywords | Action | Purpose |
 |------------------|--------|---------|
 | help, what can you do, features, capabilities, list features | Display numbered list (Step 1) | Show quick feature overview |
+| init textbook, scaffold textbook, brand new book, empty directory, fresh start | `init-textbook` skill (separate skill) | Bootstrap a brand-new textbook from scratch (mkdocs.yml + docs/ + license + contact) — run this *before* using book-installer features |
 | 1, simple mkdocs, minimal template, starter config | `references/mkdocs-template.md` (minimal section) | Create simple mkdocs.yml starter |
 | enrich, add feature, number 2-24, specific feature name | `references/mkdocs-features.md` | Install specific feature |
 | new project, mkdocs, textbook, bootstrap, setup, template, new book | `references/mkdocs-template.md` | Create new MkDocs Material project |
