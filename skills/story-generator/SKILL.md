@@ -1,13 +1,44 @@
 ---
 name: story-generator
-description: This skill generates graphic novel narratives about scientists, mathematicians, engineers, inventors, and other historical figures in science and technology, designed for intelligent textbooks. It creates compelling, historically accurate 12-panel stories with embedded image prompts and can also generate the panel images automatically via the Google Gemini API. Use this skill when the user wants to add a new historical-figure story to a textbook's Stories section, or when creating educational graphic novel content. Also use this skill when the user says "give me some ideas for graphic-novel stories" to generate a curated list of story ideas tailored to the textbook's subject matter.
+description: This skill generates graphic novel narratives about scientists, mathematicians, engineers, inventors, and other historical figures in science and technology, designed for intelligent textbooks. It creates compelling, historically accurate stories with embedded image prompts and can also generate the panel images automatically via the Google Gemini API. Default length is 12 panels plus a cover, but the panel count is configurable via the `--panels N` argument (typical range: 4–16). Use this skill when the user wants to add a new historical-figure or fictional-case-study story to a textbook's Stories section, or when creating educational graphic novel content. Also use this skill when the user says "give me some ideas for graphic-novel stories" to generate a curated list of story ideas tailored to the textbook's subject matter.
 ---
 
 # Story Generator
 
-This skill generates complete graphic novel narratives about key contributors to science, mathematics, and technology, for intelligent textbooks built with MkDocs Material. Each story is a 12-panel graphic novel plus cover, designed to be inspirational, engaging, and historically accurate. Each panel includes a narrative paragraph below it and a detailed image-generation prompt in a collapsible `<details>` block.
+This skill generates complete graphic novel narratives about key contributors to science, mathematics, and technology — and fictional case-study stories — for intelligent textbooks built with MkDocs Material. The default story length is **12 panels plus a cover (13 images total)**, but the panel count is configurable: simpler stories can be told in 6–8 panels, and synthesis stories can run to 16. Each panel includes a narrative paragraph below it and a detailed image-generation prompt in a collapsible `<details>` block.
 
-As of the 2026-04 skill update, the skill can also **automatically generate all 13 panel images** (1 cover + 12 panels) natively at 16:9 (1344×768) via multiple text-to-image APIs including Google Gemini and OpenAI gpt-image-1. Current cost for high-quality images with accurate text placement is approximately **$0.03 per image**. See "Step 3.5: Generate Images" below.
+As of the 2026-04 skill update, the skill can also **automatically generate every panel image** (1 cover + N panels) natively at 16:9 (1344×768) via multiple text-to-image APIs including Google Gemini and OpenAI gpt-image-1. Current cost for high-quality images with accurate text placement is approximately **$0.039 per image** (so ~$0.51 for a default 13-image story, or ~$0.27 for a 6-panel story). See "Step 3.5: Generate Images" below.
+
+## The `--panels N` Argument
+
+The skill accepts an optional `--panels N` argument that controls how many numbered panels the story has. The cover image is always produced separately, so a story has **N + 1** total images.
+
+- **Default:** `--panels 12` (the classic graphic-novel arc)
+- **Recommended range:** 4 to 16
+- **Below 4:** the arc has no room to develop; consider whether you want a story at all
+- **Above 16:** the reader is paying attention to a lot of pictures; split into two stories
+
+**How to choose N:**
+
+| Story shape | Suggested N |
+|---|:---:|
+| Single technique, before/after only | 6 |
+| Linear discovery (audit → fix → result) | 7–8 |
+| Mystery + reveal + multi-step fix | 9 |
+| Full historical-figure life arc | 12 (default) |
+| Multi-chapter synthesis or capstone montage | 14–16 |
+
+**How users invoke it:**
+
+The user types something like:
+
+> /story-generator The Cache That Wasn't --panels 8
+
+When you receive `--panels N` in the user's invocation, treat N as the canonical panel count for the rest of the workflow. If no `--panels` argument is given, default to 12.
+
+**Why this works without script changes:**
+
+Both `generate-images.py` and `verify-images.py` count `<details>...Image Prompt...</details>` blocks in `index.md` to determine how many images to produce or verify. They do not hardcode 12. Whatever panel count you write in `index.md` is what the scripts will generate and verify — no flag needed on the script side.
 
 ## When to Use This Skill
 
@@ -21,7 +52,7 @@ Use this skill when:
 
 ## Story Ideas Generator
 
-When the user says **"give me some ideas for graphic-novel stories"**, generate a curated list of 12-panel mini-graphic novel ideas tailored to the current textbook's subject matter. Save the result to `docs/stories/story-ideas.md`.
+When the user says **"give me some ideas for graphic-novel stories"**, generate a curated list of mini-graphic novel ideas tailored to the current textbook's subject matter. Save the result to `docs/stories/story-ideas.md`. Each idea should include a **suggested panel count** (typically 6 to 12) chosen to match the natural shape of that story — see the Panel Count guidance above. Don't default everything to 12; tight 6–8 panel stories are often stronger than bloated 12-panel ones.
 
 ### Workflow
 
@@ -40,7 +71,7 @@ Extract:
 
 #### Step 2: Generate Story Ideas
 
-Create a list of **15-20 story ideas** that connect to the textbook's subject matter. Each story idea should be a 12-panel mini-graphic novel concept.
+Create a list of **15-20 story ideas** that connect to the textbook's subject matter. Each story idea should be a mini-graphic novel concept with a suggested panel count between 6 and 12 (or up to 16 for synthesis/capstone stories).
 
 **Diversity requirements — draw from ALL of these categories:**
 
@@ -54,10 +85,11 @@ Create a list of **15-20 story ideas** that connect to the textbook's subject ma
 **For each story idea, provide:**
 
 - **Title** — a compelling, concise title (e.g., "Silent Spring — Rachel Carson's Fight Against DDT")
-- **Subject** — full name, birth/death years, country
+- **Subject** — full name, birth/death years, country (or, for fictional case-study stories, the **Setting**)
 - **Theme** — the central narrative theme (e.g., "courage to challenge industry", "persistence through rejection")
 - **Connection to textbook** — how this story relates to specific concepts or chapters in the textbook
-- **Synopsis** — 2-3 sentences describing the story arc across 12 panels
+- **Panels** — suggested panel count (6–16) with a one-line rationale for that length. Use the Panel Count guidance: 6 for single-technique stories, 8 for linear discoveries, 9 for mystery+fix, 12 for full life arcs, 14–16 for synthesis montages. The user can override this when invoking the skill via `--panels N`.
+- **Synopsis** — 2-3 sentences describing the story arc across the suggested panels
 - **Why this story inspires** — 1 sentence on why young readers will connect with it
 
 #### Step 3: Format and Save
@@ -67,10 +99,11 @@ Save the story ideas to `docs/stories/story-ideas.md` using this format:
 ```markdown
 # Story Ideas for {Book Title}
 
-These 12-panel mini-graphic novel ideas are designed to inspire
-young readers by connecting the subject matter of this textbook
-to the real people who shaped the field. Each story can be
-generated using the `/story-generator` skill.
+These mini-graphic novel ideas are designed to inspire young
+readers by connecting the subject matter of this textbook to
+the real people who shaped the field. Each story can be
+generated using the `/story-generator` skill, with the
+suggested panel count or your own override via `--panels N`.
 
 ## Selection Criteria
 
@@ -90,6 +123,7 @@ Stories were selected for:
 | **Subject** | {Full Name} ({birth}–{death}), {country} |
 | **Theme** | {Central narrative theme} |
 | **Connection** | {How it connects to specific textbook concepts} |
+| **Panels** | **{N}** — {one-line rationale for that length} |
 
 {2-3 sentence synopsis}
 
@@ -103,17 +137,20 @@ Stories were selected for:
 
 ## How to Generate a Story
 
-To turn any of these ideas into a full 12-panel graphic novel
-with generated images, use:
+To turn any of these ideas into a full graphic novel with
+generated images, use:
 
-> /story-generator
+> /story-generator {Story Title} --panels {N}
 
-Provide the subject's name and the skill will handle the rest —
-writing the narrative, creating image prompts, and optionally
-generating all panel images via multiple text-to-image APIs
-(Google Gemini, OpenAI gpt-image-1, or others). Current cost
-for high-quality images with accurate text placement is
-approximately **$0.03 per image** (~$0.40 per 13-panel story).
+Provide the subject's name (and optionally `--panels N` to
+override the suggested count) and the skill will handle the
+rest — writing the narrative, creating image prompts, and
+optionally generating all panel images via multiple
+text-to-image APIs (Google Gemini, OpenAI gpt-image-1, or
+others). Current cost for high-quality images with accurate
+text placement is
+approximately **$0.039 per image**, so $0.039 × (N + 1) per
+story — about $0.27 for 6 panels, $0.51 for 12 panels.
 ```
 
 #### Step 4: Update Navigation
@@ -213,7 +250,7 @@ Before writing, identify:
 - Key discoveries, contributions, or life events
 - Central theme (e.g., "persistence through failure", "seeing what others could not")
 - Appropriate art style for the era
-- 3-5 key life events that will anchor the 12 panels
+- 3-5 key life events (or story beats, for fictional stories) that will anchor the N panels (default N=12). Aim for one beat per ~2–3 panels — a 6-panel story usually has 3 beats; a 12-panel story usually has 4–6 beats. If `--panels N` was specified, use that N here.
 
 ### Step 2: Create the Story Directory
 
@@ -228,7 +265,9 @@ Use kebab-case (lowercase with hyphens) for directory names: `ada-lovelace`, `re
 Create `docs/stories/{story-dir-name}/index.md` following the template at `references/index-template.md`.
 
 **Key conventions:**
-- Exactly 12 numbered panels plus 1 cover = 13 images total
+- N numbered panels plus 1 cover = **N + 1 images total** (default N = 12, override with `--panels N`)
+- Panels are numbered consecutively from `panel-01` to `panel-NN` — no gaps, no extras
+- Each panel-identifier line should say "panel X of N" using the actual N for this story (e.g. "panel 3 of 8" in a 6-panel story would be wrong — every prompt's denominator must equal the total panel count)
 - All image references use `.png` extension
 - Panel image prompts wrapped in `<details><summary>Image Prompt</summary>...</details>` blocks
 - Cover image prompt wrapped in `<details><summary>Cover Image Prompt</summary>...</details>`
@@ -236,9 +275,11 @@ Create `docs/stories/{story-dir-name}/index.md` following the template at `refer
 - Narrative paragraphs go *below* each panel's image (not inside the `<details>` block)
 - References: 5 real URLs, never `(PLACEHOLDER)` — see the References Guidance section below
 
+**The template at `references/index-template.md` shows the canonical 12-panel layout.** For shorter or longer stories, follow the same per-panel pattern but stop at panel N. Do not pad with filler panels just to reach 12 — a tight 6-panel story is better than a bloated 12-panel one.
+
 ### Step 3.5: Generate Images (Optional but Recommended)
 
-Once the markdown is written, generate the 13 panel images automatically with `scripts/generate-images.py`.
+Once the markdown is written, generate the N + 1 panel images automatically with `scripts/generate-images.py`. The script auto-detects the panel count from the `<details>...Image Prompt...</details>` blocks in `index.md`, so you do not need to pass `--panels N` to the script — whatever you wrote in the markdown is what gets generated.
 
 **Prerequisites:**
 
@@ -269,7 +310,7 @@ python3 ~/.claude/skills/story-generator/scripts/generate-images.py \
     docs/stories/{story-dir-name}
 ```
 
-This generates all 13 images (cover + 12 panels) at native 1344×768 (16:9). Expected wall-clock time: ~90 seconds at the 10 RPM rate limit. Each image is verified immediately after generation.
+This generates all N + 1 images (cover + N panels) at native 1344×768 (16:9). Expected wall-clock time at the 10 RPM rate limit: roughly **6 × (N + 1) seconds** — about 90 seconds for a default 12-panel story, ~45 seconds for a 6-panel story. Each image is verified immediately after generation.
 
 **Useful flags:**
 
@@ -469,15 +510,21 @@ Gemini 2.5 Flash Image will refuse prompts that trip its safety classifier. The 
 
 **Cost projections (paid tier only — free tier currently does not work for images):**
 
+Per-story cost scales linearly with panel count: **$0.039 × (N + 1)** for an N-panel story.
+
 | Scope | Images | Paid tier cost |
 |---|:---:|:---:|
-| One story (1 cover + 12 panels) | 13 | $0.51 |
-| One 14-story textbook | 182 | ~$7.10 |
-| One 16-story textbook | 208 | ~$8.07 |
+| 6-panel story (1 cover + 6 panels) | 7 | ~$0.27 |
+| 8-panel story (1 cover + 8 panels) | 9 | ~$0.35 |
+| Default 12-panel story (1 cover + 12 panels) | 13 | $0.51 |
+| 16-panel story (1 cover + 16 panels) | 17 | ~$0.66 |
+| One 14-story textbook (all default 12-panel) | 182 | ~$7.10 |
+| One 14-story textbook (mixed: avg 8 panels) | ~126 | ~$4.91 |
+| One 16-story textbook (all default 12-panel) | 208 | ~$8.07 |
 
 **Spending cap warning:** Google AI Studio's Tier 1 Postpay projects have a configurable monthly spending cap (default varies). The cap is enforced with up to 10 minutes of latency, so overages of a few percent are possible. Monitor your spend at <https://aistudio.google.com/spend>. The cap resets on the 1st of each month (PST). If you hit the cap mid-run, the script logs each failure and continues — rerun with `--skip-existing` after raising the cap.
 
-**Recommendation:** Budget approximately **$0.50 per story** ($0.039 × 13 images). A 14-story textbook costs roughly $7. Set your spending cap to at least the total you expect to spend in a month, plus a small buffer for overages.
+**Recommendation:** Budget **$0.039 × (N + 1)** per story — about $0.50 for the default 12-panel length, or under $0.30 for tight 6-panel stories. A 14-story textbook of all default-length stories costs roughly $7; a mixed-length textbook averaging 8 panels per story costs roughly $5. Set your spending cap to at least the total you expect to spend in a month, plus a small buffer for overages.
 
 ### Alternative Models (for high-volume production)
 
@@ -614,12 +661,14 @@ After completing a story, verify:
 
 **Content:**
 - [ ] Story directory created: `docs/stories/<name>/`
-- [ ] `index.md` has full narrative and all 13 image prompts (cover + 12 panels)
+- [ ] `index.md` has full narrative and all N + 1 image prompts (cover + N panels, where N matches the `--panels` argument or defaults to 12)
+- [ ] Panels are numbered consecutively from `panel-01` to `panel-NN` with no gaps
+- [ ] Every "panel X of N" identifier line uses the *actual* N for this story (not a leftover 12)
 - [ ] All image references use `.png` extension (never `.jpg` or `.md`)
 - [ ] YAML frontmatter has title, description, and og/twitter image paths
-- [ ] 12 numbered panels with consistent structure (image + prompt + narrative)
+- [ ] N numbered panels with consistent structure (image + prompt + narrative)
 - [ ] Epilogue includes the Challenge / Response / Lesson table
-- [ ] 2-3 subject quotes present
+- [ ] 2-3 subject quotes present (or in-character quotes for fictional stories)
 - [ ] **References section has 5 real working URLs, first 3 on Wikipedia, no `(PLACEHOLDER)` strings**
 
 **Image generation (if using generate-images.py):**
@@ -627,7 +676,7 @@ After completing a story, verify:
 - [ ] `pip install google-genai` completed
 - [ ] `generate-images.py --first-only` run and cover verified as 16:9 natively (1344×768)
 - [ ] Full `generate-images.py` run completed with no fatal errors
-- [ ] All 13 PNG files present in the story directory
+- [ ] All N + 1 PNG files present in the story directory
 - [ ] `verify-images.py` exits with code 0
 - [ ] Per-story log present at `logs/{story-name}-{YYYY-MM-DD}.md`
 - [ ] JSONL usage log updated at `logs/image-generation-usage.jsonl`
@@ -636,6 +685,7 @@ After completing a story, verify:
 - [ ] Added to `mkdocs.yml` navigation in chronological order by birth year
 - [ ] Grid card added to `docs/stories/index.md`
 - [ ] Any safety-filter softenings are committed so future regenerations don't regress
+- [ ] No real brand names, product names, or trademarks appear in any image prompt (brands are OK in narrative prose only)
 
 ## Appendix: Lessons Learned from the IB Functions Textbook (2026-04-05)
 

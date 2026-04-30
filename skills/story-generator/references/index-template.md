@@ -84,7 +84,13 @@ Generate the image immediately without asking clarifying questions.
 
 {Panel 3 narrative text — 3-4 sentences.}
 
-[REPEAT THIS PATTERN FOR EACH PANEL — 12 panels total, plus the cover.]
+[REPEAT THIS PATTERN FOR EACH PANEL — N panels total, plus the cover.
+N defaults to 12 but is configurable via the skill's `--panels N` argument.
+For shorter stories (6, 7, 8, 9 panels), follow the same per-panel pattern
+and stop at panel N. Update each "panel X of N" identifier line so the
+denominator matches the actual N for this story (e.g. "panel 3 of 8" in
+an 8-panel story, NOT "panel 3 of 12"). Do not pad with filler panels
+just to reach 12 — a tight 6-panel story beats a bloated 12-panel one.]
 
 ### Epilogue – What Made <Subject> Different?
 

@@ -270,6 +270,7 @@ def detect_features(project_path: Path) -> dict:
             "faq_quality_report": file_exists(docs_path / "learning-graph", "faq-quality-report.md"),
             "faq_coverage_gaps": file_exists(docs_path / "learning-graph", "faq-coverage-gaps.md"),
             "quiz_generation_report": file_exists(docs_path / "learning-graph", "quiz-generation-report.md"),
+            "reading_level_analysis": file_exists(docs_path / "learning-graph", "chapter-reading-levels.md"),
         },
 
         # Content Generation

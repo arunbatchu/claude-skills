@@ -59,13 +59,14 @@ Create badges for all relevant technologies and platforms. Use shields.io format
 6. License badge
 7. Additional technology badges (Python, JavaScript, p5.js, etc.)
 
+**Do NOT include a "GitHub repo" badge that links the README back to its own repository.** Anyone reading the README is already on GitHub (or already has the repo cloned), so a self-link adds no value. The GitHub Pages badge is fine because it points to a different surface (the published site).
+
 **Badge Templates:**
 
 ```markdown
 [![MkDocs](https://img.shields.io/badge/Made%20with-MkDocs-526CFE?logo=materialformkdocs)](https://www.mkdocs.org/)
 [![Material for MkDocs](https://img.shields.io/badge/Material%20for%20MkDocs-526CFE?logo=materialformkdocs)](https://squidfunk.github.io/mkdocs-material/)
 [![GitHub Pages](https://img.shields.io/badge/View%20on-GitHub%20Pages-blue?logo=github)](SITE_URL)
-[![GitHub](https://img.shields.io/badge/GitHub-OWNER%2FREPO-blue?logo=github)](REPO_URL)
 [![Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-DA7857?logo=anthropic)](https://claude.ai/code)
 [![Claude Skills](https://img.shields.io/badge/Uses-Claude%20Skills-DA7857?logo=anthropic)](https://github.com/dmccreary/claude-skills)
 ```

@@ -142,6 +142,7 @@ A learning graph maps every concept in the course and shows which concepts depen
 | FAQ quality report | {faq_quality_report} | Low | Check FAQ completeness |
 | FAQ coverage gaps | {faq_coverage_gaps} | Low | Find concepts not addressed in FAQ |
 | Quiz generation report | {quiz_generation_report} | Low | Quality report for generated quizzes |
+| Reading level analysis | {reading_level_analysis} | Low | Flesch-Kincaid grade level consistency report for all chapters |
 
 ### Content Generation
 
@@ -173,7 +174,8 @@ Course Description
             └── Chapter Content
                 ├── Per-Chapter Quizzes
                 ├── Per-Chapter References
-                └── Book/Chapter Metrics
+                ├── Book/Chapter Metrics
+                └── Reading Level Analysis
 ```
 
 ---

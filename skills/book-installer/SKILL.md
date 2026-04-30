@@ -64,6 +64,7 @@ Book Installer Features (most → least common):
 35. Mascot chapter updater - retrofit existing chapters with mascot admonitions
 36. About page - professional about.md with motivation, author bio, and citations
 37. Slide generator - install slide-viewer MicroSim and generate slides.md decks for chapters
+38. Reading level analysis - Flesch-Kincaid grade level report for all chapters
 
 Type a number or feature name to install.
 
@@ -126,6 +127,7 @@ Match the user's request to the appropriate installation guide:
 | mascot chapter, update chapter, retrofit mascot, place mascot, add mascot to chapter, mascot placement, 35 | `references/mascot-chapter-updater.md` | Retrofit an existing chapter with mascot admonitions using placement rules |
 | about page, about, about.md, about this book, author bio, cite this book, citation, 36 | `references/about-page.md` | Generate professional about page with motivation, bio, and citations |
 | slide generator, slides, slide deck, slide viewer, presentation, generate slides, install slide viewer, 37 | `references/slide-generator.md` | Install the slide-viewer MicroSim and generate slides.md decks for chapters |
+| reading level, readability, flesch kincaid, grade level, reading analysis, 38 | `references/reading-level-analysis.md` | Analyze chapter reading level consistency |
 
 ### Decision Tree
 
@@ -177,6 +179,9 @@ Want to generate a professional about page with author bio and citations?
 
 Want to install a slide viewer and generate slide decks for chapters?
   → YES: slide-generator.md
+
+Want to analyze reading level consistency across chapters?
+  → YES: reading-level-analysis.md
 
 Want to add a specific feature (equations, quizzes, feedback, etc.)?
   → YES: mkdocs-features.md (then follow specific feature instructions)
@@ -363,6 +368,26 @@ See the [URI Scheme documentation](https://dmccreary.github.io/intelligent-textb
 **Prerequisites:**
 - Existing MkDocs Material project
 - Custom CSS file referenced in `extra_css`
+
+### reading-level-analysis.md
+
+**Purpose:** Analyze Flesch-Kincaid grade level consistency across all chapters
+
+**Creates:**
+- `docs/learning-graph/chapter-reading-levels.md` — per-chapter reading level report
+
+**Uses script:** `scripts/analyze-reading-levels.py`
+
+**Features:**
+- Strips markdown/HTML formatting to analyze pure prose
+- Per-chapter table with FK grade and explanatory notes
+- Summary statistics (mean, median, range, standard deviation)
+- Interpretation section explaining whether variation is meaningful
+- Identifies vocabulary-driven score inflation vs. genuine difficulty differences
+
+**Prerequisites:**
+- Existing MkDocs project with chapters in `docs/chapters/`
+- Python `textstat` library (`pip install textstat`)
 
 ### cover-image-generator.md
 
