@@ -524,6 +524,9 @@ Make SURE to put the level 4 header with the prefix `#### Diagram:` before the d
 7. End with summary or key takeaways section
 
 **Interactive elements emphasis:**
+
+**CRITICAL: Every diagram, chart, infographic, MicroSim, timeline, map, workflow, and graph model MUST be interactive.** NEVER specify a static image that does not give the learner feedback. At minimum, every visual element must support at least one of: clickable nodes/regions/bars that open an infobox, hoverable elements that reveal tooltips, or controls that change the rendered output. Mermaid diagrams are acceptable ONLY when every node has a `click` directive that reveals a definition or explanation in an infobox — a plain Mermaid diagram with no click handlers is a static image and is forbidden. If a candidate diagram cannot meet this bar, redesign it as a MicroSim, an interactive infographic, or a clickable Mermaid diagram — or cut it. See `references/content-element-types.md` "CRITICAL RULE: Every Visual Element Must Be Interactive" for the full specification.
+
 - Prioritize MicroSims and infographics that enable:
   - Student interaction tracking
   - Progress gauging

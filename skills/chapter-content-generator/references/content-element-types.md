@@ -97,6 +97,32 @@ items
 
 The goal is to have not have more than four paragraphs of pure text without incorporating one of these elements. Students don't like to see large blocks of pure text scrolling in their intelligent textbook. They want to interact with the content.
 
+## CRITICAL RULE: Every Visual Element Must Be Interactive
+
+**NEVER create static images that do not give the learner feedback.** Every diagram, chart, infographic, MicroSim, timeline, map, workflow, graph model, and causal loop diagram in an intelligent textbook MUST include at least one form of learner interactivity. A textbook page that produces no interaction events produces no xAPI statements, no engagement data, and no learning signal — which defeats the entire purpose of an intelligent textbook.
+
+**Minimum interactivity bar (every diagram must clear this):**
+
+- The learner can hover, click, or manipulate at least one element on the diagram
+- That interaction produces visible feedback (an infobox, tooltip, highlight, panel update, parameter change, or state transition)
+- The feedback teaches something — typically a definition, a property, a relationship, or a consequence
+
+**Mermaid diagrams are permitted ONLY when every node and every edge is clickable** and the click reveals an infobox containing the term's definition (ideally pulled from the chapter glossary), the relationship's meaning, or supporting context. A plain Mermaid diagram with no click handlers is a static image and is NOT acceptable.
+
+**Forbidden patterns:**
+
+- Static SVG, PNG, or JPG embedded with no surrounding interaction
+- Mermaid diagrams without click handlers and infoboxes
+- Charts that render once and never respond to hover, click, or filter
+- Timelines where the learner cannot reveal more detail on any event
+- Maps where regions and arrows are decorative and not selectable
+- Workflows where boxes have no hover text or expand-on-click behavior
+- Graph models where nodes and edges cannot be clicked or hovered
+
+If a candidate diagram cannot meet the minimum interactivity bar, redesign it as a MicroSim, an interactive infographic, or a clickable Mermaid diagram with infoboxes — or cut it.
+
+**Why this matters:** The xAPI value proposition is that every learner interaction tells a story. A static diagram tells no story. Every diagram in this textbook is also a sensor: it captures what learners explore, what they ignore, and where they get stuck. Design accordingly.
+
 ## 1. Markdown Lists
 
 **Type identifier:** `markdown-list`
@@ -241,6 +267,8 @@ In this section, you will create a detailed specification for a diagram, drawing
 - Explaining abstract concepts visually
 - Depicting data flows or processes
 - Defining an infographic that has items in a diagram or workflow with hover-triggered information boxes
+
+**Interactivity requirement (REQUIRED):** Every diagram MUST be interactive. At minimum, every labeled component, node, or arrow must be clickable or hoverable to reveal a definition, property, or explanation in an infobox or side panel. If using Mermaid, you MUST add click handlers (e.g., `click NodeId call showInfo("term")`) for every node so the learner can reveal a definition. Static diagrams with no learner feedback are NOT permitted.
 
 **Implementation:** 
 
@@ -499,6 +527,8 @@ Implementation notes:
 - Comparing values across categories
 - Illustrating proportions or distributions
 
+**Interactivity requirement (REQUIRED):** Every chart MUST respond to learner action. At minimum, hovering a bar/point/slice reveals the precise value and label in a tooltip; ideally, the learner can also toggle data series, filter categories, or adjust a parameter that re-renders the chart. Charts that render once and never respond are NOT permitted.
+
 **Implementation:** Use `<details markdown="1">` block with specification
 
 **Required information in description:**
@@ -563,6 +593,8 @@ Timelines are ideal for putting current events into context.
 Timelines can be used at the begging of a textbook to show
 the historical events that triggered an important based of knowledge.
 
+**Interactivity requirement (REQUIRED):** Every timeline MUST allow the learner to reveal more detail. At minimum, clicking or hovering an event opens an infobox with the event's description, significance, and links to related concepts. Decorative timelines with no click/hover behavior are NOT permitted.
+
 **Implementation:** Use `<details markdown="1">` block with specification
 
 **Required information in description:**
@@ -621,6 +653,8 @@ Interactive features:
 - Illustrating data flows across regions
 - Demonstrating adoption patterns
 - Visualizing network topologies
+
+**Interactivity requirement (REQUIRED):** Every map MUST be selectable. At minimum, regions, markers, and flow arrows must be clickable or hoverable to reveal the underlying data, jurisdiction rules, transfer requirements, or topology details in an infobox. Decorative maps with no learner feedback are NOT permitted.
 
 **Implementation:** Use `<details markdown="1">` block with specification
 
@@ -681,6 +715,8 @@ Interactive features:
 - Showing decision trees
 - Explaining system interactions
 - Demonstrating procedural steps
+
+**Interactivity requirement (REQUIRED):** Every workflow step, decision diamond, and connector MUST reveal its hover text or expanded explanation on click or hover. Mermaid flowcharts MUST include `click` directives for every node mapped to an infobox callback. A workflow diagram that is just lines and boxes with no learner feedback is NOT permitted.
 
 **Implementation:** Use `<details markdown="1">` block with specification
 
@@ -756,6 +792,8 @@ Swimlanes:
 - Demonstrating graph database schemas
 - Illustrating dependency networks
 - Visualizing knowledge graphs
+
+**Interactivity requirement (REQUIRED):** Every node and every edge MUST be selectable. At minimum, hovering a node shows its properties; clicking a node highlights its neighborhood and reveals its definition in a side panel. The learner must also be able to drag, zoom, or pan the graph. A static rendering of a graph with no interaction is NOT permitted.
 
 **Implementation:** Use `<details markdown="1">` block with specification
 
