@@ -184,6 +184,21 @@ This section establishes credibility. It should read as a professional bio appro
 
 **For Dan McCreary (default author — use this bio unless a different author is specified):**
 
+The headshot image if the author is Dan McCreary is here: https://dmccreary.github.io/dmccreary/img/dan-headshot-small.png
+
+You can fetch the image by running this shell command.
+
+```sh
+curl https://dmccreary.github.io/dmccreary/img/dan-headshot-small.png --output docs/img/dan-headshot-small.png
+```
+
+Verify Image with this command:
+```sh
+file --mime-type -b docs/img/dan-headshot-small.png 
+```
+It should return 'image/png'
+
+
 ```markdown
 ## About the Author
 
@@ -205,7 +220,7 @@ on semantic search, ontology strategy, and AI hardware. Beyond industry, Dan
 has mentored students as a STEM volunteer since 2014 and now applies the same
 rigor to building open educational resources. You can visit the
 [Intelligent Textbooks Case Studies](https://dmccreary.github.io/intelligent-textbooks/case-studies/)
-to see over 70 textbooks that Dan has created or co-created with other
+to see over 87 textbooks that Dan has created or co-created with other
 authors.
 
 **Selected Credentials**
