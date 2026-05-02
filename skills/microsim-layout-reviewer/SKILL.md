@@ -1,6 +1,6 @@
 ---
 name: microsim-layout-reviewer
-description: Review the visual layout of a p5.js MicroSim by capturing a screenshot at the iframe height and inspecting it for layout defects — clipped labels, overlapping controls, sliders extending past the canvas, panel content overflow, residual text strokes, low-contrast text, misaligned baselines, and draw-order bugs — then patch the `.js` file to fix what's wrong and re-verify by re-capturing. Use this skill whenever the user asks to "review a MicroSim layout", "check a MicroSim for visual bugs", "fix layout issues in a sim", "QA a MicroSim screenshot", or anything similar. Also use it proactively right after generating a new MicroSim to catch layout defects before the user sees them. Trigger on phrases like "look at the screenshot", "the labels look clipped", "fix the layout", "why is that text cut off", or "review the visual" in a MicroSim context. This skill complements `microsim-iframe-tester` (which uses Playwright bounding-box checks for control visibility) by catching the *visual* defects that pixel-precise checks miss.
+description: Review the visual layout of a p5.js MicroSim using Claude Vision — capture a screenshot at the iframe height, inspect it for layout defects (clipped labels, overlapping controls, sliders extending past the canvas, panel content overflow, residual text strokes, low-contrast text, misaligned baselines, draw-order bugs), patch the `.js` file to fix what's wrong, and re-verify by re-capturing. Use this skill whenever the user asks to "review a MicroSim layout", "check a MicroSim for visual bugs", "fix layout issues in a sim", "QA a MicroSim screenshot", or anything similar. Also use it proactively right after generating a new MicroSim to catch layout defects before the user sees them. Trigger on phrases like "look at the screenshot", "the labels look clipped", "fix the layout", "why is that text cut off", or "review the visual" in a MicroSim context. This skill complements `microsim-iframe-tester` (which uses Playwright bounding-box checks for control visibility) by catching the *visual* defects that pixel-precise checks miss.
 ---
 
 # MicroSim Layout Reviewer
@@ -64,15 +64,24 @@ Chrome wrapper.
 
 ### 4. Read the screenshot
 
-Use the `Read` tool on the PNG. Claude is multimodal — the image lands in
-the conversation as actual visual content, not text.
+Use the `Read` tool on the PNG. The image is passed into context as
+visual content for **Claude Vision** to analyze directly — no OCR, no
+image-processing libraries. Claude Vision sees pixels the way a human
+reviewer does: text legibility, color contrast, alignment, overlap,
+clipping at edges. Capability tracks the model version, so when this
+skill is invoked under a newer model it should produce sharper review
+output without changes here. Note the active model version (e.g.
+"Claude Vision (Opus 4.7)") when you write the review summary in
+step 9 — the version anchors the judgment for anyone re-reading later.
 
 ### 5. Apply the visual checklist
 
-Read `references/visual-checklist.md` and walk through every item against
-the screenshot you just loaded. Don't skim — go item by item. Vision is
-non-deterministic; the only reliable way to catch a defect is to look for
-it explicitly.
+Read `references/visual-checklist.md` and walk through every item
+against the screenshot you just loaded. Don't skim — go item by item.
+Claude Vision is **not deterministic**: what gets flagged depends on
+what you're actively looking for. The checklist is what disciplines
+review into reliable output, by forcing explicit inspection of every
+known failure mode rather than a vague "does this look OK?".
 
 For each item in the checklist, decide: **PASS**, **FAIL**, or **N/A**
 (e.g., "no JSON panel exists in this sim"). Quote the specific evidence

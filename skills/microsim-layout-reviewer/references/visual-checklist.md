@@ -1,9 +1,14 @@
 # Visual Checklist for MicroSim Layout Review
 
-Walk this list item-by-item against the screenshot. For each item, decide
-PASS / FAIL / N/A and quote what you see. Vision is non-deterministic — if
-you skim, you will miss things. The whole point of writing the checklist
-down is to force explicit attention.
+Walk this list item-by-item against the screenshot. For each item,
+decide PASS / FAIL / N/A and quote what you see.
+
+**Claude Vision is not deterministic.** What gets flagged in a
+screenshot depends on what's actively being looked for — a casual
+"does this look right?" pass misses defects that a directed "is the
+left edge clipped?" question reliably catches. The whole point of
+writing this checklist down is to force explicit attention to each
+known failure mode, every time.
 
 For every FAIL, write down:
 - **What:** the defect (one phrase)
