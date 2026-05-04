@@ -38,9 +38,10 @@ This skill involves interactive Q&A (Steps 1-2) followed by file generation (Ste
 1. Run `mkdir -p docs/img/mascot docs/css` first
 2. Then execute ALL file operations in a single parallel batch:
    - Write `docs/css/mascot.css`
+   - Write `docs/img/mascot/character-sheet.md` (canonical character description — see Step 2b)
    - Write `docs/img/mascot/image-prompts.md`
    - Write `docs/learning-graph/mascot-test.md`
-   - Write or update `CLAUDE.md`
+   - Write or update `CLAUDE.md` (must include a Mascot File Index — see Step 7)
    - Edit `mkdocs.yml` (theme palette, extra_css, nav entry)
 3. Target: all file generation completes in one tool-call round
 
@@ -144,6 +145,79 @@ The mascot should NOT appear:
 - In every single admonition or callout
 - In ways that interrupt reading flow
 - With excessive dialogue that adds no value
+
+### Step 2b: Save the Character Sheet
+
+Once the design Q&A is complete, save the canonical character description as a markdown file at `docs/img/mascot/character-sheet.md`. This file is the **single source of truth** for the character's visual identity, voice, and personality — every pose prompt, every chapter admonition, and every future regeneration must re-anchor to it. Without a written character sheet, drift across poses and across content authors is guaranteed.
+
+Use the term **"character sheet"** rather than "character bible" — the latter carries religious connotations some readers find off-putting, and "character sheet" is the more widely-used term in animation, illustration, and AI-image-generation circles.
+
+Use this template, filling in every placeholder from the Step 2 Q&A answers:
+
+```markdown
+# Character Sheet: {{CHARACTER_NAME}} the {{SPECIES}}
+
+The canonical identity document for {{CHARACTER_NAME}}, the pedagogical
+mascot for the **{{BOOK_TITLE}}** textbook. Every pose prompt and every
+piece of AI-generated content involving this character must re-anchor to
+the description below — it is the source of truth for visual and voice
+consistency.
+
+## Identity
+
+- **Name:** {{CHARACTER_NAME}}
+- **Species:** {{SPECIES}}
+- **Subject:** {{SUBJECT}}
+- **Catchphrase:** "{{CATCHPHRASE}}"
+
+## Visual Description
+
+- **Body color:** {{PRIMARY_COLOR}} — hex `{{PRIMARY_HEX}}`
+- **Accent color:** {{SECONDARY_COLOR}} — hex `{{SECONDARY_HEX}}`
+- **Clothing / accessories:** {{ACCESSORIES}}
+- **Expression:** {{EXPRESSION}}
+- **Size proportion:** {{SIZE_DESCRIPTION}}
+- **Art style:** {{ART_STYLE}}
+
+## Personality
+
+- {{TRAIT_1}}
+- {{TRAIT_2}}
+- {{TRAIT_3}}
+- {{TRAIT_4}}
+
+## Voice
+
+- {{VOICE_TRAIT_1}}
+- {{VOICE_TRAIT_2}}
+- {{VOICE_TRAIT_3}}
+- Signature phrases: "{{PHRASE_1}}", "{{PHRASE_2}}", "{{PHRASE_3}}"
+
+## Pose Set
+
+| Pose | Filename | Use |
+|------|----------|-----|
+| Neutral | `neutral.png` | General-purpose / sidebars |
+| Welcome | `welcome.png` | Chapter openings |
+| Thinking | `thinking.png` | Key concepts |
+| Tip | `tip.png` | Hints and helpful guidance |
+| Warning | `warning.png` | Common mistakes / pitfalls |
+| Encouraging | `encouraging.png` | Difficult content / struggle |
+| Celebration | `celebration.png` | End of chapter / achievements |
+
+See [`image-prompts.md`](image-prompts.md) for the full text of each pose
+prompt. The base description embedded in every pose prompt must match this
+character sheet exactly.
+
+## Why This Mascot
+
+{{REASONING_FOR_CHOICE}} — a 2-3 sentence rationale for why this species,
+name, and styling were chosen for the subject. Used by future maintainers
+deciding whether a proposed redesign is consistent with the project's
+original intent.
+```
+
+The character sheet lives alongside the pose images in `docs/img/mascot/` so any agent or human working with the mascot finds the design rules and the artwork in the same directory.
 
 ### Step 3: Generate AI Image Prompts
 
@@ -567,10 +641,29 @@ Authors use standard admonition syntax with the custom types. The mascot image i
 
 ### Step 7: Add Character Guidelines to CLAUDE.md
 
-To ensure consistent mascot usage across AI-generated content, add a section to the project's `CLAUDE.md`:
+To ensure consistent mascot usage across AI-generated content, add a section to the project's `CLAUDE.md`. The section MUST include a **Mascot File Index** that links to every textbook file this skill produces, so future agents working in the repo can find the canonical artifacts in one lookup instead of re-discovering them via globbing.
 
 ```markdown
 ## Learning Mascot: {{CHARACTER_NAME}} the {{SPECIES}}
+
+### Mascot File Index
+
+The canonical files for this mascot. When editing any of these, update the
+others in the same turn so they stay in sync.
+
+| File | Purpose |
+|------|---------|
+| [`docs/img/mascot/character-sheet.md`](docs/img/mascot/character-sheet.md) | Canonical identity document (name, species, colors, voice). Source of truth. |
+| [`docs/img/mascot/image-prompts.md`](docs/img/mascot/image-prompts.md) | Self-contained AI prompts for regenerating each pose. |
+| [`docs/img/mascot/neutral.png`](docs/img/mascot/neutral.png) | Default / general-purpose pose. |
+| [`docs/img/mascot/welcome.png`](docs/img/mascot/welcome.png) | Chapter-opening pose. |
+| [`docs/img/mascot/thinking.png`](docs/img/mascot/thinking.png) | Key-concept pose. |
+| [`docs/img/mascot/tip.png`](docs/img/mascot/tip.png) | Hint / helpful-guidance pose. |
+| [`docs/img/mascot/warning.png`](docs/img/mascot/warning.png) | Common-mistake / pitfall pose. |
+| [`docs/img/mascot/encouraging.png`](docs/img/mascot/encouraging.png) | Difficult-content / struggle pose. |
+| [`docs/img/mascot/celebration.png`](docs/img/mascot/celebration.png) | End-of-chapter / achievement pose. |
+| [`docs/css/mascot.css`](docs/css/mascot.css) | Custom admonition styles for the seven pose contexts. |
+| [`docs/learning-graph/mascot-test.md`](docs/learning-graph/mascot-test.md) | Rendering test page that exercises every admonition style. |
 
 ### Character Overview
 
@@ -719,7 +812,8 @@ exclude_docs: |
 docs/
 ├── img/
 │   └── mascot/
-│       ├── image-prompts.md
+│       ├── character-sheet.md   # Canonical identity document (source of truth)
+│       ├── image-prompts.md     # Self-contained pose prompts
 │       ├── neutral.png
 │       ├── welcome.png
 │       ├── thinking.png
@@ -730,8 +824,10 @@ docs/
 ├── css/
 │   └── mascot.css
 └── learning-graph/
-    └── mascot-test.md          # Mascot rendering test page
+    └── mascot-test.md           # Mascot rendering test page
 ```
+
+The `CLAUDE.md` file at the project root MUST also contain a **Mascot File Index** linking to each of the files above (see Step 7). The index lets future agents find every mascot artifact in one lookup.
 
 ### Admonition Types
 
