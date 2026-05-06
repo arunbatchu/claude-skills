@@ -1,0 +1,78 @@
+{
+  "metadata": {
+    "id": "runaway-hypothesis-cld",
+    "title": "The Runaway Hypothesis (R1)",
+    "archetype": "limits-to-growth",
+    "description": "The simple version of the winner-takes-all story: a better model produces better code, which makes the lab itself more productive, which produces an even better next model.",
+    "version": "1.0.0",
+    "created_date": "2026-05-05",
+    "author": "Tracking AI Course",
+    "tags": ["ai", "recursive-self-improvement", "reinforcing-loop", "winner-takes-all"]
+  },
+  "nodes": [
+    {
+      "id": "model_capability",
+      "label": "Model Capability",
+      "position": {"x": 300, "y": 120},
+      "type": "stock",
+      "description": "Aggregate quality of the lab's frontier model — reasoning, code generation, agentic task completion."
+    },
+    {
+      "id": "code_quality",
+      "label": "Code Generation Quality",
+      "position": {"x": 480, "y": 420},
+      "type": "variable",
+      "description": "How reliably the model produces correct, maintainable code for real engineering tasks."
+    },
+    {
+      "id": "rd_productivity",
+      "label": "R&D Productivity",
+      "position": {"x": 120, "y": 420},
+      "type": "variable",
+      "description": "How fast the AI lab itself can ship experiments, training infrastructure, and next-gen models."
+    }
+  ],
+  "edges": [
+    {
+      "id": "mc_to_cq",
+      "source": "model_capability",
+      "target": "code_quality",
+      "polarity": "positive",
+      "description": "Better models generate better code.",
+      "strength": "strong"
+    },
+    {
+      "id": "cq_to_rd",
+      "source": "code_quality",
+      "target": "rd_productivity",
+      "polarity": "positive",
+      "description": "Better code generation accelerates the lab's own engineering work.",
+      "strength": "strong"
+    },
+    {
+      "id": "rd_to_mc",
+      "source": "rd_productivity",
+      "target": "model_capability",
+      "polarity": "positive",
+      "description": "Faster R&D produces stronger next-generation models.",
+      "strength": "strong",
+      "delay": {
+        "present": true,
+        "duration": "weeks to months",
+        "description": "Training cycles introduce a real delay between productivity gains and capability gains."
+      }
+    }
+  ],
+  "loops": [
+    {
+      "id": "R1",
+      "type": "reinforcing",
+      "label": "R1: Recursive Self-Improvement",
+      "description": "The core 'winner-takes-all' hypothesis: better models build better models.",
+      "path": ["model_capability", "code_quality", "rd_productivity", "model_capability"],
+      "behavior_pattern": "Compounding capability growth, bounded only by external constraints.",
+      "position": {"x": 300, "y": 320},
+      "is_primary": true
+    }
+  ]
+}

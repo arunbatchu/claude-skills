@@ -1,0 +1,519 @@
+{
+  "metadata": {
+    "id": "winner-takes-all-cld",
+    "title": "Winner-Takes-All: AI Capability Loop Dynamics",
+    "archetype": "limits-to-growth",
+    "description": "A causal loop diagram of the reinforcing and balancing forces that determine whether the AI industry tips toward a single dominant player or remains an oligopoly with leapfrogging.",
+    "version": "1.0.0",
+    "created_date": "2026-05-05",
+    "updated_date": "2026-05-05T13:35:11.108Z",
+    "author": "Tracking AI Course",
+    "tags": [
+      "ai",
+      "causal-loop",
+      "winner-takes-all",
+      "self-improvement",
+      "compute",
+      "data-flywheel"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "model_capability",
+      "label": "Model Capability",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "type": "stock",
+      "description": "Aggregate quality of a frontier model: reasoning, code generation, agentic task completion, evaluation scores."
+    },
+    {
+      "id": "code_quality",
+      "label": "Code Generation Quality",
+      "position": {
+        "x": 320,
+        "y": -90
+      },
+      "type": "variable",
+      "description": "How reliably the model produces correct, maintainable code for real engineering tasks."
+    },
+    {
+      "id": "rd_productivity",
+      "label": "R&D Productivity",
+      "position": {
+        "x": 433,
+        "y": 111
+      },
+      "type": "variable",
+      "description": "How fast the AI lab itself can ship experiments, training infrastructure, and next-gen models."
+    },
+    {
+      "id": "autonomous_research",
+      "label": "Autonomous Research",
+      "position": {
+        "x": 280,
+        "y": -320
+      },
+      "type": "variable",
+      "description": "The model's ability to design, run, and interpret its own ML experiments without a human in the loop."
+    },
+    {
+      "id": "architecture_discovery",
+      "label": "Architecture Discovery Rate",
+      "position": {
+        "x": 520,
+        "y": -260
+      },
+      "type": "variable",
+      "description": "Rate at which novel model architectures, training recipes, and optimizations are found."
+    },
+    {
+      "id": "market_share",
+      "label": "Market Share",
+      "position": {
+        "x": -365,
+        "y": -54
+      },
+      "type": "variable",
+      "description": "Share of paid frontier-model usage and enterprise contracts."
+    },
+    {
+      "id": "capital",
+      "label": "Capital",
+      "position": {
+        "x": -520,
+        "y": -210
+      },
+      "type": "variable",
+      "description": "Cash on hand from revenue and strategic investment available to spend on training."
+    },
+    {
+      "id": "compute_scale",
+      "label": "Compute Scale",
+      "position": {
+        "x": -320,
+        "y": -340
+      },
+      "type": "variable",
+      "description": "Total training compute available to the lab — GPUs, datacenters, electricity contracts."
+    },
+    {
+      "id": "user_adoption",
+      "label": "User Adoption",
+      "position": {
+        "x": -394,
+        "y": 335
+      },
+      "type": "variable",
+      "description": "Number of active users, agents, and enterprise integrations running on the model."
+    },
+    {
+      "id": "proprietary_data",
+      "label": "Proprietary Interaction Data",
+      "position": {
+        "x": -488,
+        "y": 148
+      },
+      "type": "variable",
+      "description": "Private signal from real-world usage: traces, preferences, error corrections — not available to competitors."
+    },
+    {
+      "id": "compute_demand",
+      "label": "Compute Demand",
+      "position": {
+        "x": -156,
+        "y": -445
+      },
+      "type": "variable",
+      "description": "Compute the lab needs to train and serve increasingly large models."
+    },
+    {
+      "id": "compute_scarcity",
+      "label": "Compute Scarcity / Cost",
+      "position": {
+        "x": 114,
+        "y": -460
+      },
+      "type": "variable",
+      "description": "Market price and queue depth for advanced GPUs and power capacity."
+    },
+    {
+      "id": "model_complexity",
+      "label": "Model Complexity",
+      "position": {
+        "x": 172,
+        "y": 456
+      },
+      "type": "variable",
+      "description": "Internal complexity that makes the system harder to evaluate against ground truth."
+    },
+    {
+      "id": "evaluation_difficulty",
+      "label": "Evaluation Difficulty",
+      "position": {
+        "x": -115,
+        "y": 428
+      },
+      "type": "variable",
+      "description": "How hard it is to know whether a new model is actually better, beyond benchmark gaming."
+    },
+    {
+      "id": "visibility",
+      "label": "Visibility / Reverse Engineering",
+      "position": {
+        "x": 776,
+        "y": 59
+      },
+      "type": "variable",
+      "description": "How much of a leader's breakthrough leaks via papers, employee mobility, prompts, and inference traces."
+    },
+    {
+      "id": "competitor_adoption",
+      "label": "Competitor Adoption",
+      "position": {
+        "x": 613,
+        "y": 308
+      },
+      "type": "variable",
+      "description": "How quickly rival labs implement and ship the leader's techniques."
+    },
+    {
+      "id": "inference_cost",
+      "label": "Inference Cost",
+      "position": {
+        "x": 311,
+        "y": 229
+      },
+      "type": "variable",
+      "description": "Per-token cost to run the model in production."
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_mc_to_cq",
+      "source": "model_capability",
+      "target": "code_quality",
+      "polarity": "positive",
+      "label": "+",
+      "description": "Better models generate better code."
+    },
+    {
+      "id": "e_cq_to_rd",
+      "source": "code_quality",
+      "target": "rd_productivity",
+      "polarity": "positive",
+      "label": "+",
+      "description": "Better code generation accelerates the lab's own engineering."
+    },
+    {
+      "id": "e_rd_to_mc",
+      "source": "rd_productivity",
+      "target": "model_capability",
+      "polarity": "positive",
+      "label": "+",
+      "description": "Faster R&D produces stronger next-generation models."
+    },
+    {
+      "id": "e_mc_to_ar",
+      "source": "model_capability",
+      "target": "autonomous_research",
+      "polarity": "positive",
+      "label": "+",
+      "description": "More capable models can run more of their own research."
+    },
+    {
+      "id": "e_ar_to_ad",
+      "source": "autonomous_research",
+      "target": "architecture_discovery",
+      "polarity": "positive",
+      "label": "+",
+      "description": "Autonomous experimentation finds new architectures faster."
+    },
+    {
+      "id": "e_ad_to_mc",
+      "source": "architecture_discovery",
+      "target": "model_capability",
+      "polarity": "positive",
+      "label": "+",
+      "description": "New architectures raise capability."
+    },
+    {
+      "id": "e_mc_to_ms",
+      "source": "model_capability",
+      "target": "market_share",
+      "polarity": "positive",
+      "label": "+",
+      "description": "Better models win more customers."
+    },
+    {
+      "id": "e_ms_to_cap",
+      "source": "market_share",
+      "target": "capital",
+      "polarity": "positive",
+      "label": "+",
+      "description": "Market share converts to revenue and unlocks strategic investment.",
+      "strength": "strong"
+    },
+    {
+      "id": "e_cap_to_cs",
+      "source": "capital",
+      "target": "compute_scale",
+      "polarity": "positive",
+      "label": "+",
+      "description": "Capital buys GPUs, power, and datacenters."
+    },
+    {
+      "id": "e_cs_to_mc",
+      "source": "compute_scale",
+      "target": "model_capability",
+      "polarity": "positive",
+      "label": "+",
+      "description": "More training compute lifts model capability."
+    },
+    {
+      "id": "e_mc_to_ua",
+      "source": "model_capability",
+      "target": "user_adoption",
+      "polarity": "positive",
+      "label": "+",
+      "description": "Better models attract more users and agents."
+    },
+    {
+      "id": "e_ua_to_pd",
+      "source": "user_adoption",
+      "target": "proprietary_data",
+      "polarity": "positive",
+      "label": "+",
+      "description": "Real usage produces unique training signal."
+    },
+    {
+      "id": "e_pd_to_mc",
+      "source": "proprietary_data",
+      "target": "model_capability",
+      "polarity": "positive",
+      "label": "+",
+      "description": "Proprietary data feeds back into training and finetuning."
+    },
+    {
+      "id": "e_mc_to_cd",
+      "source": "model_capability",
+      "target": "compute_demand",
+      "polarity": "positive",
+      "label": "+",
+      "description": "Pushing capability requires more compute per training run."
+    },
+    {
+      "id": "e_cd_to_csc",
+      "source": "compute_demand",
+      "target": "compute_scarcity",
+      "polarity": "positive",
+      "label": "+",
+      "description": "Higher demand raises the price and queue depth for compute."
+    },
+    {
+      "id": "e_csc_to_mc",
+      "source": "compute_scarcity",
+      "target": "model_capability",
+      "polarity": "negative",
+      "label": "-",
+      "description": "Scarce, expensive compute slows training throughput and improvement."
+    },
+    {
+      "id": "e_mc_to_mcx",
+      "source": "model_capability",
+      "target": "model_complexity",
+      "polarity": "positive",
+      "label": "+",
+      "description": "More capable models are also more complex internally."
+    },
+    {
+      "id": "e_mcx_to_ed",
+      "source": "model_complexity",
+      "target": "evaluation_difficulty",
+      "polarity": "positive",
+      "label": "+",
+      "description": "Complexity makes ground-truth evaluation harder."
+    },
+    {
+      "id": "e_ed_to_mc",
+      "source": "evaluation_difficulty",
+      "target": "model_capability",
+      "polarity": "negative",
+      "label": "-",
+      "description": "Hard evaluation introduces noise and slows reliable progress."
+    },
+    {
+      "id": "e_mc_to_vis",
+      "source": "model_capability",
+      "target": "visibility",
+      "polarity": "positive",
+      "label": "+",
+      "description": "Visible capability invites reverse engineering and talent flow."
+    },
+    {
+      "id": "e_vis_to_ca",
+      "source": "visibility",
+      "target": "competitor_adoption",
+      "polarity": "positive",
+      "label": "+",
+      "description": "What's visible gets copied."
+    },
+    {
+      "id": "e_ca_to_mc",
+      "source": "competitor_adoption",
+      "target": "model_capability",
+      "polarity": "negative",
+      "label": "-",
+      "description": "Fast-following erodes the leader's relative advantage."
+    },
+    {
+      "id": "e_mc_to_ic",
+      "source": "model_capability",
+      "target": "inference_cost",
+      "polarity": "positive",
+      "label": "+",
+      "description": "Bigger, better models cost more per token to serve."
+    },
+    {
+      "id": "e_ic_to_ua",
+      "source": "inference_cost",
+      "target": "user_adoption",
+      "polarity": "negative",
+      "label": "-",
+      "description": "Higher inference cost suppresses adoption — the 'best' model is not always the most used."
+    }
+  ],
+  "loops": [
+    {
+      "id": "R1",
+      "type": "reinforcing",
+      "label": "R1: Recursive Self-Improvement",
+      "description": "Better code generation makes the lab itself more productive, which produces stronger next-gen models. The core 'winner-takes-all' hypothesis.",
+      "path": [
+        "model_capability",
+        "code_quality",
+        "rd_productivity",
+        "model_capability"
+      ],
+      "position": {
+        "x": 280,
+        "y": 37
+      },
+      "is_primary": true
+    },
+    {
+      "id": "R2",
+      "type": "reinforcing",
+      "label": "R2: Autonomous Research (Supercritical)",
+      "description": "If the model can run its own experiments and discover its own architectures, the loop closes inside the company and decouples from human R&D pace.",
+      "path": [
+        "model_capability",
+        "autonomous_research",
+        "architecture_discovery",
+        "model_capability"
+      ],
+      "position": {
+        "x": 290,
+        "y": -200
+      }
+    },
+    {
+      "id": "R3",
+      "type": "reinforcing",
+      "label": "R3: Capital → Compute → Capability",
+      "description": "Capability wins market share, market share unlocks capital, capital buys compute, compute lifts capability. This is where Google's $40B Anthropic investment plugs in.",
+      "path": [
+        "model_capability",
+        "market_share",
+        "capital",
+        "compute_scale",
+        "model_capability"
+      ],
+      "position": {
+        "x": -290,
+        "y": -200
+      }
+    },
+    {
+      "id": "R4",
+      "type": "reinforcing",
+      "label": "R4: Data Flywheel",
+      "description": "Adoption produces proprietary interaction data competitors can't see. This is the lock-in mechanism most likely to tip the system to a single winner.",
+      "path": [
+        "model_capability",
+        "user_adoption",
+        "proprietary_data",
+        "model_capability"
+      ],
+      "position": {
+        "x": -303,
+        "y": 166
+      }
+    },
+    {
+      "id": "B1",
+      "type": "balancing",
+      "label": "B1: Compute Constraint",
+      "description": "Pushing capability raises compute demand, which raises scarcity and cost, which throttles everyone — including the leader.",
+      "path": [
+        "model_capability",
+        "compute_demand",
+        "compute_scarcity",
+        "model_capability"
+      ],
+      "position": {
+        "x": 0,
+        "y": -390
+      }
+    },
+    {
+      "id": "B2",
+      "type": "balancing",
+      "label": "B2: Evaluation Bottleneck",
+      "description": "Capability raises complexity, complexity makes evaluation harder, and harder evaluation slows the rate of *reliable* progress.",
+      "path": [
+        "model_capability",
+        "model_complexity",
+        "evaluation_difficulty",
+        "model_capability"
+      ],
+      "position": {
+        "x": 32,
+        "y": 353
+      }
+    },
+    {
+      "id": "B3",
+      "type": "balancing",
+      "label": "B3: Diffusion / Fast-Follow",
+      "description": "Visible capability invites reverse engineering and talent mobility. Competitor adoption erodes the leader's relative advantage even when AI writes the code.",
+      "path": [
+        "model_capability",
+        "visibility",
+        "competitor_adoption",
+        "model_capability"
+      ],
+      "position": {
+        "x": 600,
+        "y": 110
+      }
+    },
+    {
+      "id": "B4",
+      "type": "balancing",
+      "label": "B4: Cost-Performance Friction",
+      "description": "Frontier models are expensive to serve. High inference cost suppresses adoption, which weakens the data flywheel.",
+      "path": [
+        "model_capability",
+        "inference_cost",
+        "user_adoption",
+        "model_capability"
+      ],
+      "position": {
+        "x": 75,
+        "y": 222
+      }
+    }
+  ]
+}
