@@ -591,6 +591,71 @@ timeline.setWindow(
 
 **Note**: The same padding logic must be applied in the `filterCategory()` and `fitAll()` functions to maintain consistency when filtering or resetting the view.
 
+### Leftmost / Rightmost Item Label Clipped by Container (Ghost-Spacer Fix)
+
+**Problem**: With `align: 'center'`, each item's text label extends roughly half its width to the *left* of the item's date marker. The leftmost (earliest) item — and symmetrically the rightmost — has no neighbor on that side to push the window outward, so its label runs off the left edge of the timeline container and gets clipped. Adding more year-based padding via `setWindow()` may **silently fail** if `options.min` / `options.max` clamps the window inside the date you asked for.
+
+**Footgun shape**: `options.min` is *silent* (no warning when it clamps), *easy to trigger* (the docs describe `min`/`max` as "pan limits", not as "window clamps"), and *delayed damage* (the clipped label looks like a CSS issue, not a config issue) — classic silent failure where `setWindow(1645, …)` actually produces a window starting at 1680.
+
+**Solution**: Add an invisible "ghost" item earlier than your first real item (and/or after your last). Include it in the `fitToData()` min/max calculation, but **exclude it from the rendered dataset** so it doesn't reserve a stacking row or display content. Also widen `options.min` / `options.max` so the ghost can actually push the window.
+
+**Step 1 — Add ghost rows to the source data**:
+```javascript
+const data = [
+    { id: 0, year: 1675, cat: 'ghost', title: '', body: '' },  // left spacer
+    { id: 1, year: 1689, cat: 'philo', title: '...', body: '...' },
+    // ... real items ...
+    { id: 99, year: 1810, cat: 'ghost', title: '', body: '' }, // right spacer (optional)
+];
+```
+
+**Step 2 — Split into `allItems` (for fit math) and `visibleItems` (for the dataset)**:
+```javascript
+const items = data.map(d => ({
+    id: d.id,
+    content: d.cat === 'ghost' ? '' : d.title,  // ghost has no content
+    start: new Date(d.year, 5, 30),
+    className: d.cat,
+    title: d.title,
+    body: d.body
+}));
+
+const allItems = items.slice();                                    // for fitToData
+const visibleItems = items.filter(i => i.className !== 'ghost');   // for rendering
+const dataset = new vis.DataSet(visibleItems);
+```
+
+**Step 3 — Loosen `options.min` / `options.max`** so the ghost-extended window isn't clamped:
+```javascript
+const options = {
+    // ...
+    min: new Date(1640, 0, 1),   // must be earlier than (ghost_year - padL)
+    max: new Date(1820, 0, 1),   // must be later than (last_year + padR)
+};
+```
+
+**Step 4 — `fitToData()` uses `allItems`; padding can drop to ~0**:
+```javascript
+function fitToData() {
+    const ts = allItems.map(i => i.start.getTime());
+    const minD = Math.min(...ts), maxD = Math.max(...ts);
+    const year = 365 * 24 * 60 * 60 * 1000;
+    const padL = 0, padR = 10 * year;  // ghosts handle the spacing
+    timeline.setWindow(new Date(minD - padL), new Date(maxD + padR), { animation: false });
+}
+```
+
+**Step 5 — Filter ghosts from the category dropdown handler too**:
+```javascript
+const filtered = (cat === 'all')
+    ? visibleItems
+    : visibleItems.filter(i => i.className === cat);
+```
+
+**Tuning the ghost year**: place the ghost so the first real item lands at roughly 10–15% of the visible window width. For a span of ~125 years, that means putting the ghost ~12–15 years before your first real item. Too far → big empty gap on the left. Too close → label still clips.
+
+**Verify the fix isn't being clamped**: in DevTools, run `timeline.getWindow()` and check whether `.start` matches the date you passed to `setWindow()`. If it's later than you asked, `options.min` is clamping you.
+
 ### Scroll Hijacking — Vertical Scroll Ignored, Horizontal Scroll Pans
 
 **Problem**: vis-timeline captures all wheel events on the container, preventing the page from scrolling when the user rolls the mouse wheel vertically over the timeline.
