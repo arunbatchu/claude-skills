@@ -32,6 +32,7 @@ Book Installer Features (most → least common):
  3b. Generate favicon from mascot - Auto-generate favicon.ico from neutral.png mascot image
  4. Cover image & social preview - Home page image + og:image metadata
  4b. Generate cover image - Auto-generate cover using AI (API or ChatGPT)
+ 4c. Social media preview hook - Inject og:* / twitter:* meta tags via MkDocs hook (no Cairo required)
  5. Math equations - KaTeX (recommended) or MathJax
  6. Code syntax highlighting - Language-aware code blocks
  7. Code copy button - One-click copy for code blocks
@@ -109,7 +110,8 @@ Match the user's request to the appropriate installation guide:
 | graph viewer, learning graph, visualization, interactive graph, concept viewer | `references/learning-graph-viewer.md` | Add learning graph viewer to existing project |
 | track skills, skill usage, activity tracking, hooks, usage analytics | `references/skill-tracker.md` | Set up skill tracking with hooks |
 | generate cover, generate cover image, auto cover, create cover image, run cover script | `references/cover-image-generator.md` | Auto-generate cover image using AI (guides through API/ChatGPT options) |
-| cover image, home page, social media, og:image, montage, book cover, index page | `references/home-page-template.md` | Create home page with cover image and social metadata |
+| cover image, home page, montage, book cover, index page | `references/home-page-template.md` | Create home page with cover image and social metadata |
+| social media preview, social card, social meta, og:image, og:title, og:description, open graph, twitter card, twitter image, linkedin preview, slack unfurl, bk-check-social-cover, social hook, social override | `references/social-media-preview.md` | Install the Cairo-free hook that injects og:* and twitter:* meta tags on every page |
 | logo, site logo, branding, upper left, header icon | `references/mkdocs-features.md` | Add custom logo with AI prompt examples |
 | favicon, browser tab, bookmark icon, .ico | `references/mkdocs-features.md` | Add favicon with AI prompt examples |
 | generate favicon, favicon from mascot, mascot favicon, favicon.ico from png, create favicon | `references/favicon-generator.md` | Generate favicon.ico from neutral.png mascot using Python |
@@ -152,6 +154,10 @@ Want to GENERATE a cover image automatically using AI?
 
 Creating a cover image MANUALLY or setting up home page with social metadata?
   → YES: home-page-template.md
+
+Installing the social media preview hook (og:* / twitter:* meta tags) or
+fixing a failing bk-check-social-cover run?
+  → YES: social-media-preview.md (Cairo-free; this is the default approach)
 
 Want to generate a feature checklist showing what's implemented?
   → YES: feature-checklist-generator.md
@@ -273,6 +279,26 @@ See the [URI Scheme documentation](https://dmccreary.github.io/intelligent-textb
 **Prerequisites:**
 - Claude Code installed
 - ~/.claude directory exists
+
+### social-media-preview.md
+
+**Purpose:** Install a Cairo-free MkDocs hook that emits Open Graph and Twitter Card meta tags on every page
+
+**Creates:**
+- `plugins/social_override.py` — `on_post_page` hook that injects/replaces `og:title`, `og:description`, `og:image`, `og:type`, `og:url`, and `twitter:*` tags
+- `hooks:` block in `mkdocs.yml` referencing the new file
+
+**Features:**
+- Reads `image:`, `title:`, `description:` from each page's frontmatter; falls back to `img/cover.png` and the site-wide values
+- Emits absolute `og:image` URLs by joining `site_url` with the image path (so crawlers and `bk-check-social-cover` can HEAD-request them)
+- Works without `mkdocs-material[imaging]` / Cairo — the common-case default
+- Compatible with the full `social` plugin when Cairo is present: replaces its auto-generated `/assets/images/social/...` URLs with the declared `cover.png`
+- Verified via `~/.local/bin/bk-check-social-cover` (which enforces `og:image` basename = `cover.png` and image reachability)
+
+**Prerequisites:**
+- Existing MkDocs Material project with `site_url:` set
+- `docs/img/cover.png` (use `cover-image-generator.md` or `home-page-template.md` first if missing)
+- Home page frontmatter with `title:` and `description:` (typically from `home-page-template.md`)
 
 ### home-page-template.md
 
@@ -584,6 +610,11 @@ See the [URI Scheme documentation](https://dmccreary.github.io/intelligent-textb
 **Routing:** Keywords "generate favicon", "mascot favicon", "favicon from mascot" → `references/favicon-generator.md`
 **Action:** Read favicon-generator.md, verify `docs/img/mascot/neutral.png` exists and Pillow is installed, run `scripts/generate-favicon.py` from the project root, then update `theme.favicon` in mkdocs.yml to `img/favicon.ico`
 
+### Example 15b: Install Social Media Preview Hook
+**User:** "add the social media preview mkdocs hook" or "my bk-check-social-cover is failing" or "install og:image meta tags"
+**Routing:** Keywords "social media preview", "og:image", "bk-check-social-cover", "social hook" → `references/social-media-preview.md`
+**Action:** Read social-media-preview.md, create `plugins/social_override.py` at the project root with the exact code in the reference, add a top-level `hooks: - plugins/social_override.py` block to `mkdocs.yml`, run `mkdocs build`, verify the nine og:* / twitter:* meta tags appear in `site/index.html`, then run `bk-check-social-cover` against either the deployed URL or a local server staging the build under `/<project>/`
+
 ### Example 16: Install Slide Viewer and Generate Chapter Slides
 **User:** "install the slide viewer and make slides for chapters 1 and 2" or "generate slides for chapter 3"
 **Routing:** Keywords "slide", "slides", "slide viewer", "generate slides", "slide deck" → `references/slide-generator.md`
@@ -596,8 +627,9 @@ For a complete new project, users typically run these installations in order:
 1. `mkdocs-template.md` - Create the project structure
 2. `cover-image-generator.md` - Auto-generate cover image using AI
 3. `home-page-template.md` - Configure home page with cover image metadata
-4. `learning-graph-viewer.md` - Add graph visualization (after learning graph exists)
-5. `skill-tracker.md` - Enable usage analytics (optional)
+4. `social-media-preview.md` - Install the og:* / twitter:* meta-tag hook (verify with `bk-check-social-cover`)
+5. `learning-graph-viewer.md` - Add graph visualization (after learning graph exists)
+6. `skill-tracker.md` - Enable usage analytics (optional)
 
 ### Verification Commands
 
