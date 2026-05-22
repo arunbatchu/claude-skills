@@ -1,40 +1,85 @@
-from mkdocs.plugins import BasePlugin
+"""MkDocs hook that injects Open Graph and Twitter Card meta tags into
+every rendered page using the page's frontmatter.
+
+Loaded via the `hooks:` entry in mkdocs.yml, not as a plugin -- this
+avoids collisions with other projects that also install a package
+called `social_override` or a top-level module called `plugins`.
+
+Frontmatter fields read (per page):
+    title         -- falls back to the H1/page.title
+    description   -- falls back to site_description
+    image         -- path under docs/ (e.g. img/cover.png); falls back to
+                     site-wide default `img/cover.png`
+
+The hook emits absolute URLs by joining `site_url` with the image path,
+so the og:image / twitter:image tags work for crawlers and the
+bk-check-social-cover verifier (which HEAD-requests the image URL).
+
+If the social plugin (mkdocs-material[imaging]) is enabled, this hook
+also replaces its auto-generated /assets/images/social/ tags with the
+declared cover image.
+"""
+
 import re
 
-class SocialOverridePlugin(BasePlugin):
-    def on_page_context(self, context, page, config, **kwargs):
-        """Save custom image path from page metadata if it exists"""
-        if page.meta and 'image' in page.meta:
-            page.custom_image = page.meta['image']
-        return context
+DEFAULT_IMAGE = "img/cover.png"
 
-    def on_post_page(self, html, page, config, **kwargs):
-        """Replace social plugin meta tags with our custom image"""
-        # Only process pages with custom image
-        if not hasattr(page, 'custom_image'):
-            return html
 
-        # Build the full URL for the custom image
-        site_url = config['site_url'].rstrip('/')
-        image_path = '/' + page.custom_image.lstrip('/')
-        full_image_url = site_url + image_path
+def _absolute_image_url(site_url, image_path):
+    if image_path.startswith(("http://", "https://")):
+        return image_path
+    return site_url.rstrip("/") + "/" + image_path.lstrip("/")
 
-        # Find and replace OpenGraph image tags
-        og_tags = re.findall(r'<meta\s+property="og:image"[^>]*?>', html)
-        for tag in og_tags:
-            if '/assets/images/social/' in tag:
-                new_tag = f'<meta property="og:image" content="{full_image_url}">'
-                html = html.replace(tag, new_tag)
 
-        # Find and replace Twitter image tags
-        twitter_tags = re.findall(r'<meta\s+name="twitter:image"[^>]*?>', html)
-        for tag in twitter_tags:
-            if '/assets/images/social/' in tag:
-                new_tag = f'<meta name="twitter:image" content="{full_image_url}">'
-                html = html.replace(tag, new_tag)
+def _meta_tag(prop, content, attr="property"):
+    return f'<meta {attr}="{prop}" content="{content}">'
 
+
+def on_post_page(html, page, config, **kwargs):
+    site_url = config.get("site_url") or ""
+    if not site_url:
         return html
 
-# Make the plugin available to MkDocs
-def get_plugin():
-    return SocialOverridePlugin()
+    title = (page.meta or {}).get("title") or page.title or config.get("site_name", "")
+    description = (page.meta or {}).get("description") or config.get("site_description", "")
+    image = (page.meta or {}).get("image") or DEFAULT_IMAGE
+    image_url = _absolute_image_url(site_url, image)
+
+    # Replace social-plugin-emitted /assets/images/social/ tags first.
+    og_social = re.compile(
+        r'<meta\s+property="og:image"\s+content="[^"]*/assets/images/social/[^"]*"[^>]*>'
+    )
+    html = og_social.sub(_meta_tag("og:image", image_url), html)
+
+    tw_social = re.compile(
+        r'<meta\s+(?:property|name)="twitter:image"\s+content="[^"]*/assets/images/social/[^"]*"[^>]*>'
+    )
+    html = tw_social.sub(_meta_tag("twitter:image", image_url, attr="name"), html)
+
+    # Inject any tags that are still missing, immediately before </head>.
+    injections = []
+    if not re.search(r'<meta\s+property="og:title"', html):
+        injections.append(_meta_tag("og:title", title))
+    if not re.search(r'<meta\s+property="og:description"', html):
+        injections.append(_meta_tag("og:description", description))
+    if not re.search(r'<meta\s+property="og:image"', html):
+        injections.append(_meta_tag("og:image", image_url))
+    if not re.search(r'<meta\s+property="og:type"', html):
+        injections.append(_meta_tag("og:type", "website"))
+    if not re.search(r'<meta\s+property="og:url"', html):
+        page_url = site_url.rstrip("/") + "/" + (page.url or "").lstrip("/")
+        injections.append(_meta_tag("og:url", page_url))
+
+    if not re.search(r'<meta\s+(?:property|name)="twitter:card"', html):
+        injections.append(_meta_tag("twitter:card", "summary_large_image", attr="name"))
+    if not re.search(r'<meta\s+(?:property|name)="twitter:title"', html):
+        injections.append(_meta_tag("twitter:title", title, attr="name"))
+    if not re.search(r'<meta\s+(?:property|name)="twitter:description"', html):
+        injections.append(_meta_tag("twitter:description", description, attr="name"))
+    if not re.search(r'<meta\s+(?:property|name)="twitter:image"', html):
+        injections.append(_meta_tag("twitter:image", image_url, attr="name"))
+
+    if injections:
+        html = html.replace("</head>", "  " + "\n  ".join(injections) + "\n</head>", 1)
+
+    return html

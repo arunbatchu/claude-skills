@@ -18,11 +18,12 @@ project starts from the same baseline as everything else in the workspace.
 The scaffold is intentionally **minimal-but-complete**: it ships only the
 features that every recent textbook ends up using anyway (search, code copy,
 admonitions, math via arithmatex, side navigation, CC BY-NC-SA license, the
-intelligent-textbook URI scheme). Everything else — mascots, slide viewer,
-learning graph viewer, custom 404, social cards, glightbox image zoom, Google
-Analytics, comments, kanban, etc. — is left commented out or absent so the
-user can layer it on incrementally via the **book-installer** skill once they
-actually need it.
+intelligent-textbook URI scheme, **the Cairo-free social-preview hook with a
+generic `cover.png`**). Everything else — mascots, slide viewer, learning
+graph viewer, custom 404, Cairo-based per-page social cards, glightbox image
+zoom, Google Analytics, comments, kanban, etc. — is left commented out or
+absent so the user can layer it on incrementally via the **book-installer**
+skill once they actually need it.
 
 This separation of concerns matters: `init-textbook` is run **once** at
 project birth; `book-installer` is run **many times** thereafter to add
@@ -182,6 +183,18 @@ mkdocs build --strict
 to pass `--strict` with no chapter content yet, because every nav entry that
 points at a not-yet-generated file is left commented out.
 
+Confirm the social-preview hook is wired correctly by checking the built
+home page for the nine meta tags it should emit:
+
+```bash
+grep -E '<meta\s+(property|name)="(og|twitter):' site/index.html | wc -l
+# expect: 9
+```
+
+If the count is 0, the hook didn't load — re-check that `hooks:` is a
+top-level `mkdocs.yml` key (not nested under `plugins:`) and that
+`plugins/social_override.py` is at the project root, not under `docs/`.
+
 Do **not** run `mkdocs serve` yourself — per project CLAUDE.md, the user runs
 their own `mkdocs serve` in their terminal and watches it for rebuilds.
 
@@ -259,10 +272,28 @@ sensibly:
   no point omitting it from the scaffold.
 - **`watch:` lists `docs` and `mkdocs.yml`.** This makes `mkdocs serve`
   reload on config edits, which is what the user expects.
-- **No `social` plugin in the default.** It needs `pip install
-  "mkdocs-material[imaging]"` plus a system-level Cairo install on macOS.
-  Failing on first build is a worse experience than a comment that says how
-  to enable it.
+- **No `social` plugin in the default, but the social-preview hook IS on.**
+  The `mkdocs-material[imaging]` `social` plugin needs `pip install
+  "mkdocs-material[imaging]"` plus a system-level Cairo install on macOS,
+  so it's left commented out — failing on first build is a worse experience
+  than a comment that says how to enable it. In its place, the scaffold
+  ships `plugins/social_override.py` (loaded via `hooks:`) which injects
+  `og:title`, `og:description`, `og:image`, `og:type`, `og:url`, and
+  `twitter:*` meta tags on every page from frontmatter. It has zero system
+  dependencies, reads `image:` from each page (falling back to
+  `img/cover.png`), and verifies clean against `~/.local/bin/bk-check-social-cover`
+  out of the box. When the `social` plugin IS later enabled, the same hook
+  swaps its auto-generated `/assets/images/social/...` URLs for the declared
+  cover — so the two coexist correctly.
+
+  **Historical footgun:** an earlier version of this template shipped a
+  broken `social_override.py` written as a `BasePlugin` class but loaded via
+  `hooks:`. MkDocs hooks expect top-level functions, not classes, so the
+  module imported with no effect and books had no Open Graph tags at all —
+  silently. The current template uses the top-level-function form
+  (`on_post_page(html, page, config, **kwargs)`). Don't refactor it back
+  into a class without also moving the load mechanism to `plugins:` + an
+  entry-point registration.
 - **No mascot logo path baked in.** Several recent books point `theme.logo`
   at `img/mascot/neutral.png` — but only after the mascot exists. Pointing
   at a missing file breaks the build. The scaffold leaves `theme.logo`

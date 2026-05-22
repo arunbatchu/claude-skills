@@ -1,9 +1,14 @@
 ---
 title: '{{SITE_NAME}}'
 description: '{{SITE_DESCRIPTION}}'
+image: img/cover.png
 ---
 
 # {{SITE_NAME}}
+
+<figure markdown>
+  ![{{SITE_NAME}} cover](./img/cover.png){ width="100%" }
+</figure>
 
 {{SITE_DESCRIPTION}}
 
