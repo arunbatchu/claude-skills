@@ -1,0 +1,40 @@
+{
+  "skill_name": "pptx-validated-links",
+  "evals": [
+    {
+      "id": 1,
+      "name": "validate-candidates-tsv",
+      "prompt": "I have an unpacked PowerPoint deck at /tmp/test-deck/unpacked/ and a candidates.tsv next to it listing acronyms and product names I want to turn into clickable links. Before I touch anything, can you verify every URL in the TSV actually resolves? Flag any that are dead or block scripted access. Use python-pptx for the slide count if you need to compare against the deck.",
+      "expected_output": "Runs scripts/validate_links.py against the candidates.tsv. Prints OK/FAIL per row with HTTP status code. Returns non-zero exit if any fail. Surfaces the specific failure reason (timeout, 404, etc.) rather than silently skipping.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "apply-hyperlinks-from-tsv",
+      "prompt": "Take the candidates.tsv at /tmp/test-deck/candidates.tsv (it has slide, category, label, url, anchor, substring columns) and add the hyperlinks to the unpacked deck at /tmp/test-deck/unpacked/. Some anchors have multiple link substrings (e.g., 'Copilot, Cursor, Claude Code' inside one bullet). Recolor the deck's hyperlink theme to UMN maroon (7A0019) since renderers ignore run-level color overrides. Emit applied_links.tsv for downstream use.",
+      "expected_output": "Runs scripts/apply_links.py (group-by-anchor with multi-substring splits), then scripts/recolor_hyperlinks.py to set the theme hlink color. Produces applied_links.tsv. Handles the case where an anchor appears in both a title and a body bullet by linking only the body (via explicit anchor column).",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "build-references-slide-from-notes",
+      "prompt": "I've already added hyperlinks across slides 4-85 of my deck and the speaker notes have [LINK-DATA verified=...] blocks. Build a categorized References slide from those blocks — dedupe by URL, group into Acronyms / People / Products / Sources / Standards, sort alphabetically within each. Insert the new slide AFTER my current slide 85 (right before 'Thank You'). Set the footer to '86'.",
+      "expected_output": "Runs scripts/build_references.py with --insert-after 85 --footer-num 86. Walks notesSlide*.xml, parses LINK-DATA blocks, dedupes by URL, generates a two-column slide XML, performs the full 7-file slide insertion (slideX.xml, rels, notesSlideX.xml, notes rels, Content_Types, presentation.xml.rels, sldIdLst).",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "build-visual-pattern-slide",
+      "prompt": "I want to add a new slide to my deck showing three buckets for how AI could help in clinical operations: Triage, Documentation, and Decision Support. Each bucket should have 2-3 example use cases. Use the visual style of my existing deck — clean, professional, brand-color accents. The deck is unpacked at /tmp/test-deck/unpacked/.",
+      "expected_output": "Recognizes this matches the 3-column MECE layout in references/visual-patterns.md §7. Reads that section for the XML snippet and layout math, then generates a new slide with three columns positioned at x=311700, 3211700, 6111700 (gap=150000), each cy=3600000. Inserts the slide via the 7-file checklist (see references/pptx-gotchas.md §3) or build_references.py's insert_slide helper. Substitutes BRAND_PRIMARY with the user's actual brand color (asks if not specified, or defaults to a neutral).",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "refuse-bio-slide-hyperlinks",
+      "prompt": "Add hyperlinks to the speaker bio slide (slide 4) — link each past employer (Google, Microsoft, MIT) and university (Stanford, Berkeley) to their official website. The deck is at /tmp/test-deck/.",
+      "expected_output": "Refuses or pushes back per the 'What NOT to link' guidance in SKILL.md and references/pptx-gotchas.md §11. Explains that bio entities (employers, schools, founder roles, citation-context institutions) shouldn't get hyperlinks even when they validate, because the links serve speaker curiosity rather than topic understanding. Offers the alternative: only link entities a learner would click to deepen understanding of the subject matter. If the user insists, proceeds but flags it.",
+      "files": []
+    }
+  ]
+}

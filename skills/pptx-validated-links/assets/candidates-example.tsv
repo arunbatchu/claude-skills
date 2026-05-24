@@ -1,0 +1,43 @@
+# Example candidates.tsv — feed this to validate_links.py and apply_links.py
+# Columns (tab-separated): slide<TAB>category<TAB>label<TAB>url<TAB>anchor<TAB>substring
+#   slide      = 1-based PPTX slide number (matches slideN.xml)
+#   category   = acronym | product | person | citation | standard
+#   label      = display name on the References slide
+#   url        = authoritative URL
+#   anchor     = (optional) exact <a:t> content to match; if blank, auto-finds first run containing label
+#   substring  = (optional) substring within anchor to hyperlink; defaults to label
+#
+# Lines starting with # are ignored. Blank lines OK.
+#
+# IMPORTANT — encoding the `anchor` column:
+#   The anchor must match the slide's raw <a:t> bytes exactly. Different authoring
+#   tools store dashes and quotes differently:
+#     - Slides authored in Google Slides / many web tools: literal Unicode
+#       characters (e.g., — — ' ).
+#     - Slides authored in PowerPoint via certain templates: XML entities
+#       (e.g., &#8212; &#8211; &#x2019;).
+#     - Ampersand is ALWAYS &amp; in the XML, regardless of source tool.
+#   To check which form your deck uses, grep the raw slide XML AFTER unpacking:
+#     grep -c '&#8211;\|&#8212;' unpacked/ppt/slides/slide12.xml
+#     # 0 = literal Unicode in this deck; nonzero = entities.
+#   The rows below mix both forms to show the syntax for each.
+
+# --- Simple cases: anchor == label, no need to specify ---
+12	person	Garry Kasparov	https://en.wikipedia.org/wiki/Garry_Kasparov
+12	product	AlphaGo	https://deepmind.google/research/breakthroughs/alphago/
+14	person	Kai-Fu Lee	https://en.wikipedia.org/wiki/Kai-Fu_Lee
+
+# --- Anchor + substring: link only "Inspire V" inside the title run ---
+32	product	Inspire V	https://www.inspiresleep.com/	Use case – Inspire V Closed-Loop Stimulation	Inspire V
+
+# --- Multiple links in one anchor: repeat anchor, vary substring ---
+44	product	GitHub Copilot	https://github.com/features/copilot	&#8211; Code generation: Copilot, Cursor, Claude Code	Copilot
+44	product	Cursor	https://cursor.com/	&#8211; Code generation: Copilot, Cursor, Claude Code	Cursor
+44	product	Claude Code	https://www.anthropic.com/claude-code	&#8211; Code generation: Copilot, Cursor, Claude Code	Claude Code
+
+# --- Ampersand: must be encoded as &amp; in the anchor to match the XML ---
+44	acronym	V&V	https://en.wikipedia.org/wiki/Verification_and_validation	&#8211; AI-assisted V&amp;V evidence for SaMD	V&amp;V
+
+# --- Acronyms from a glossary ---
+25	acronym	Generative AI	https://en.wikipedia.org/wiki/Generative_artificial_intelligence
+25	acronym	Large Language Model	https://en.wikipedia.org/wiki/Large_language_model	Large Language Model LLM	Large Language Model
