@@ -18,8 +18,8 @@ project starts from the same baseline as everything else in the workspace.
 The scaffold is intentionally **minimal-but-complete**: it ships only the
 features that every recent textbook ends up using anyway (search, code copy,
 admonitions, math via arithmatex, side navigation, CC BY-NC-SA license, the
-intelligent-textbook URI scheme, **the Cairo-free social-preview hook with a
-generic `cover.png`**). Everything else — mascots, slide viewer, learning
+intelligent-textbook URI scheme, **a `cover.png` plus the social-override
+hook that swaps in that cover for the home page**). Everything else — mascots, slide viewer, learning
 graph viewer, custom 404, Cairo-based per-page social cards, glightbox image
 zoom, Google Analytics, comments, kanban, etc. — is left commented out or
 absent so the user can layer it on incrementally via the **book-installer**
@@ -183,17 +183,21 @@ mkdocs build --strict
 to pass `--strict` with no chapter content yet, because every nav entry that
 points at a not-yet-generated file is left commented out.
 
-Confirm the social-preview hook is wired correctly by checking the built
-home page for the nine meta tags it should emit:
+Confirm the social-override hook is wired correctly by checking that the
+built home page's `og:image` and `twitter:image` point at the declared
+cover (not whatever Material's defaults emit):
 
 ```bash
-grep -E '<meta\s+(property|name)="(og|twitter):' site/index.html | wc -l
-# expect: 9
+grep -E '(og|twitter):image' site/index.html
+# expect: both URLs are absolute and end with /img/cover.png
 ```
 
-If the count is 0, the hook didn't load — re-check that `hooks:` is a
-top-level `mkdocs.yml` key (not nested under `plugins:`) and that
-`plugins/social_override.py` is at the project root, not under `docs/`.
+If the URLs don't point at `cover.png`, the hook didn't load — re-check
+that `hooks:` is a top-level `mkdocs.yml` key (not nested under
+`plugins:`) and that `plugins/social_override.py` is at the project root,
+not under `docs/`. (The hook only acts on pages that declare `image:` in
+frontmatter; the scaffold's `docs/index.md` template does, so a clean
+scaffold will pass this check on the home page.)
 
 Do **not** run `mkdocs serve` yourself — per project CLAUDE.md, the user runs
 their own `mkdocs serve` in their terminal and watches it for rebuilds.
@@ -272,19 +276,30 @@ sensibly:
   no point omitting it from the scaffold.
 - **`watch:` lists `docs` and `mkdocs.yml`.** This makes `mkdocs serve`
   reload on config edits, which is what the user expects.
-- **No `social` plugin in the default, but the social-preview hook IS on.**
+- **No `social` plugin in the default, but the social-override hook IS on.**
   The `mkdocs-material[imaging]` `social` plugin needs `pip install
   "mkdocs-material[imaging]"` plus a system-level Cairo install on macOS,
   so it's left commented out — failing on first build is a worse experience
   than a comment that says how to enable it. In its place, the scaffold
-  ships `plugins/social_override.py` (loaded via `hooks:`) which injects
-  `og:title`, `og:description`, `og:image`, `og:type`, `og:url`, and
-  `twitter:*` meta tags on every page from frontmatter. It has zero system
-  dependencies, reads `image:` from each page (falling back to
-  `img/cover.png`), and verifies clean against `~/.local/bin/bk-check-social-cover`
-  out of the box. When the `social` plugin IS later enabled, the same hook
-  swaps its auto-generated `/assets/images/social/...` URLs for the declared
-  cover — so the two coexist correctly.
+  ships `plugins/social_override.py` (loaded via `hooks:`). The hook has
+  one job: when a page declares `image:` in its frontmatter, it overrides
+  that page's `og:image` and `twitter:image` with `site_url + image`.
+  Pages without `image:` are untouched — Material's default meta tags (and
+  the social plugin's generated card image, if enabled) pass through.
+
+  This produces a clean two-mode behavior that matches author intent:
+
+  1. **Social plugin enabled, no `image:` frontmatter on a page** →
+     crawlers see the per-page auto-generated `/assets/images/social/<page>.png`
+     card.
+  2. **Page declares `image:` frontmatter** → crawlers always see that
+     image, regardless of whether the social plugin is enabled. The
+     declared image wins over the generated card.
+
+  The scaffold's `docs/index.md` template declares `image: img/cover.png`,
+  so the home page unfurls with the book cover out of the box and verifies
+  clean against `~/.local/bin/bk-check-social-cover`. Chapter pages don't
+  declare `image:` and inherit whichever default is active.
 
   **Historical footgun:** an earlier version of this template shipped a
   broken `social_override.py` written as a `BasePlugin` class but loaded via
@@ -294,6 +309,14 @@ sensibly:
   (`on_post_page(html, page, config, **kwargs)`). Don't refactor it back
   into a class without also moving the load mechanism to `plugins:` + an
   entry-point registration.
+
+  **Second historical footgun:** a later version of this hook tried to be
+  helpful by injecting all nine og:* / twitter:* tags on every page and
+  defaulting every page's image to `img/cover.png` site-wide. That
+  clobbered Material's own meta tags and forced the book cover onto every
+  chapter unfurl regardless of author intent. The current hook is
+  per-page-explicit: no `image:` in frontmatter means the hook is a
+  no-op.
 - **No mascot logo path baked in.** Several recent books point `theme.logo`
   at `img/mascot/neutral.png` — but only after the mascot exists. Pointing
   at a missing file breaks the build. The scaffold leaves `theme.logo`

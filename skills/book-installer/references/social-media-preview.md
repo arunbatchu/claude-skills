@@ -5,6 +5,17 @@ a page's `image:` frontmatter value. The hook is a no-op on pages that
 don't declare `image:` — those keep whatever `mkdocs-material` (or the
 optional `social` plugin) emits by default.
 
+## The Logic in One Sentence
+
+The `mkdocs-material[imaging]` social plugin, when enabled, will always
+generate a per-page social preview card, and crawlers will use that card
+**unless** the page's markdown frontmatter declares an `image:` field —
+in which case that declared image always wins over the generated card.
+
+This hook is the piece that enforces "declared image always wins." Without
+it, `image:` frontmatter is silently ignored (it's just an unknown key as
+far as MkDocs is concerned).
+
 ## When to Use This Reference
 
 Use this guide when the user asks for any of:
