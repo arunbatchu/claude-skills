@@ -72,11 +72,10 @@ If the project has a mascot (`docs/img/mascot/welcome.png` exists), add a welcom
 ```markdown
 ## Welcome from {{MASCOT_NAME}}
 
-![](./img/mascot/welcome.png){ align="left" width="140px"}
-{{MASCOT_WELCOME_TEXT — in character, 3-5 sentences, warm and encouraging,
-references the subject matter, ends with the mascot's catchphrase if it has one.}}
-
-<div style="clear: both;"></div>
+!!! mascot-welcome "Welcome!"
+    ![{{MASCOT_NAME}} waving welcome](./img/mascot/welcome.png){ .mascot-admonition-img }
+    {{MASCOT_WELCOME_TEXT — in character, 3-5 sentences, warm and encouraging,
+    references the subject matter, ends with the mascot's catchphrase if it has one.}}
 ```
 
 ### Section 3: Why This Intelligent Textbook

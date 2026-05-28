@@ -1,85 +1,58 @@
-"""MkDocs hook that injects Open Graph and Twitter Card meta tags into
-every rendered page using the page's frontmatter.
+"""MkDocs hook that overrides og:image and twitter:image with a page's
+`image:` frontmatter value.
+
+Behavior:
+    - If the page has `image:` in its frontmatter, og:image and
+      twitter:image are set to site_url + image (absolute URL).
+    - If the page has no `image:`, the hook is a no-op. All meta tags
+      emitted by mkdocs-material (and by the social plugin, if enabled)
+      pass through unchanged.
+
+The cover image (img/cover.png) is therefore used ONLY for pages that
+declare it explicitly -- typically docs/index.md. There is no site-wide
+default. When the mkdocs-material[imaging] social plugin is enabled, its
+auto-generated /assets/images/social/<page>.png card is what crawlers see
+for every page that does NOT declare `image:`. A page that DOES declare
+`image:` always wins over the generated card.
 
 Loaded via the `hooks:` entry in mkdocs.yml, not as a plugin -- this
 avoids collisions with other projects that also install a package
 called `social_override` or a top-level module called `plugins`.
-
-Frontmatter fields read (per page):
-    title         -- falls back to the H1/page.title
-    description   -- falls back to site_description
-    image         -- path under docs/ (e.g. img/cover.png); falls back to
-                     site-wide default `img/cover.png`
-
-The hook emits absolute URLs by joining `site_url` with the image path,
-so the og:image / twitter:image tags work for crawlers and the
-bk-check-social-cover verifier (which HEAD-requests the image URL).
-
-If the social plugin (mkdocs-material[imaging]) is enabled, this hook
-also replaces its auto-generated /assets/images/social/ tags with the
-declared cover image.
 """
 
 import re
 
-DEFAULT_IMAGE = "img/cover.png"
-
-
-def _absolute_image_url(site_url, image_path):
-    if image_path.startswith(("http://", "https://")):
-        return image_path
-    return site_url.rstrip("/") + "/" + image_path.lstrip("/")
-
-
-def _meta_tag(prop, content, attr="property"):
-    return f'<meta {attr}="{prop}" content="{content}">'
-
 
 def on_post_page(html, page, config, **kwargs):
+    image = (page.meta or {}).get("image")
+    if not image:
+        return html
+
     site_url = config.get("site_url") or ""
     if not site_url:
         return html
 
-    title = (page.meta or {}).get("title") or page.title or config.get("site_name", "")
-    description = (page.meta or {}).get("description") or config.get("site_description", "")
-    image = (page.meta or {}).get("image") or DEFAULT_IMAGE
-    image_url = _absolute_image_url(site_url, image)
+    if image.startswith(("http://", "https://")):
+        image_url = image
+    else:
+        image_url = site_url.rstrip("/") + "/" + image.lstrip("/")
 
-    # Replace social-plugin-emitted /assets/images/social/ tags first.
-    og_social = re.compile(
-        r'<meta\s+property="og:image"\s+content="[^"]*/assets/images/social/[^"]*"[^>]*>'
+    og_tag = f'<meta property="og:image" content="{image_url}">'
+    og_pattern = re.compile(
+        r'<meta\s+property="og:image"\s+content="[^"]*"[^>]*>'
     )
-    html = og_social.sub(_meta_tag("og:image", image_url), html)
+    if og_pattern.search(html):
+        html = og_pattern.sub(og_tag, html, count=1)
+    else:
+        html = html.replace("</head>", f"  {og_tag}\n</head>", 1)
 
-    tw_social = re.compile(
-        r'<meta\s+(?:property|name)="twitter:image"\s+content="[^"]*/assets/images/social/[^"]*"[^>]*>'
+    tw_tag = f'<meta name="twitter:image" content="{image_url}">'
+    tw_pattern = re.compile(
+        r'<meta\s+(?:property|name)="twitter:image"\s+content="[^"]*"[^>]*>'
     )
-    html = tw_social.sub(_meta_tag("twitter:image", image_url, attr="name"), html)
-
-    # Inject any tags that are still missing, immediately before </head>.
-    injections = []
-    if not re.search(r'<meta\s+property="og:title"', html):
-        injections.append(_meta_tag("og:title", title))
-    if not re.search(r'<meta\s+property="og:description"', html):
-        injections.append(_meta_tag("og:description", description))
-    if not re.search(r'<meta\s+property="og:image"', html):
-        injections.append(_meta_tag("og:image", image_url))
-    if not re.search(r'<meta\s+property="og:type"', html):
-        injections.append(_meta_tag("og:type", "website"))
-    if not re.search(r'<meta\s+property="og:url"', html):
-        page_url = site_url.rstrip("/") + "/" + (page.url or "").lstrip("/")
-        injections.append(_meta_tag("og:url", page_url))
-
-    if not re.search(r'<meta\s+(?:property|name)="twitter:card"', html):
-        injections.append(_meta_tag("twitter:card", "summary_large_image", attr="name"))
-    if not re.search(r'<meta\s+(?:property|name)="twitter:title"', html):
-        injections.append(_meta_tag("twitter:title", title, attr="name"))
-    if not re.search(r'<meta\s+(?:property|name)="twitter:description"', html):
-        injections.append(_meta_tag("twitter:description", description, attr="name"))
-    if not re.search(r'<meta\s+(?:property|name)="twitter:image"', html):
-        injections.append(_meta_tag("twitter:image", image_url, attr="name"))
-
-    if injections:
-        html = html.replace("</head>", "  " + "\n  ".join(injections) + "\n</head>", 1)
+    if tw_pattern.search(html):
+        html = tw_pattern.sub(tw_tag, html, count=1)
+    else:
+        html = html.replace("</head>", f"  {tw_tag}\n</head>", 1)
 
     return html

@@ -2,17 +2,23 @@
 # bk-install-social-override-plugin
 #
 # Installs the social_override hook for mkdocs-material into the current
-# directory. The hook overrides og:image and twitter:image with the
-# value of a page's `image:` frontmatter field, joined with site_url to
-# produce an absolute URL. Pages WITHOUT an `image:` frontmatter field
-# are left untouched — mkdocs-material's default social meta tags
-# (and the social plugin's auto-generated card, if enabled) pass
-# through unchanged.
+# directory.
 #
-# In particular: the cover image (img/cover.png) is used ONLY when a
-# page explicitly declares `image: img/cover.png` in its frontmatter
-# (typically docs/index.md). There is no site-wide fallback to
-# cover.png.
+# THE LOGIC (one sentence): the mkdocs-material[imaging] social plugin,
+# when enabled, will always generate a per-page social preview card and
+# crawlers will use that card UNLESS the page's markdown frontmatter
+# declares an `image:` field -- in which case that declared image always
+# wins over the generated card.
+#
+# Implementation: this hook overrides og:image and twitter:image with
+# site_url + image whenever a page declares `image:` in its frontmatter.
+# Pages WITHOUT `image:` are left untouched -- mkdocs-material's default
+# meta tags (and the social plugin's auto-generated /assets/images/social/
+# card, if enabled) pass through unchanged.
+#
+# The cover image (img/cover.png) is therefore used ONLY when a page
+# explicitly declares `image: img/cover.png` in its frontmatter (typically
+# docs/index.md). There is no site-wide fallback to cover.png.
 #
 # This installer uses the mkdocs `hooks:` mechanism (a file-path
 # reference in mkdocs.yml), NOT a Python entry-point plugin. Reason:
