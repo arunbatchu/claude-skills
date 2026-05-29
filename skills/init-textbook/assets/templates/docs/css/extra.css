@@ -3,9 +3,9 @@
     padding: 0;
 }
 .md-header__button.md-logo img, .md-header__button.md-logo svg {
-    height: 55px;
-    width: 55px;
-     /* background-color: #ffffff; */
+    height: 80px;
+    width: 80px;
+    object-fit: contain;
     background-color: #aaaaaa;
     border-radius: 50%;
     padding: 4px;
