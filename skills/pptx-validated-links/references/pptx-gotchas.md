@@ -203,3 +203,22 @@ declarations:
 should return BODY shapes (a string of `<p:sp>`/`<p:pic>`); the single writer wraps
 once with `slide_xml()`. Audit any helper whose name implies a full slide
 ("divider_slide", "title_slide") — it likely already wraps; don't wrap it again.
+
+## 13. Match/strip regexes must tolerate whitespace — unpack pretty-prints, generated XML is minified
+
+`unpack.py` **pretty-prints** slide XML (newlines + indentation between tags), but
+slides you generate programmatically are usually **minified** (no whitespace between
+tags). A regex tuned on one form silently matches NOTHING on the other and fails
+without erroring — e.g. a shape-strip
+`<p:sp><p:nvSpPr><p:cNvPr id="[234]" name="BigNum"` matches minified XML but skips
+the pretty-printed `<p:sp>\n  <p:nvSpPr>\n    <p:cNvPr ...`. The visible symptom:
+the strip "succeeds" but the old shapes are still there (e.g. old + new divider text
+overlap after compositing).
+
+**How to apply:** between adjacent tags, write `\s*` not nothing. Use
+`<p:sp>\s*<p:nvSpPr>\s*<p:cNvPr id="[234]" name="(BigNum|PartLbl|DivTitle)".*?</p:sp>`
+(DOTALL). After any structural strip, assert the leftover is gone
+(`assert 'name="BigNum"' not in t`) instead of trusting the substitution count.
+Anchor-replace on a single tag (`t.replace('</p:grpSpPr>', ...)`) is whitespace-safe
+because the tag itself carries no internal whitespace — it's only multi-tag matches
+that break.

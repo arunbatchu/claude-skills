@@ -49,6 +49,13 @@
       "prompt": "This slide is drab and text-heavy — a title plus three bullet paragraphs, with the whole bottom half empty. Make it look good. /tmp/deck/unpacked/ppt/slides/slide12.xml",
       "expected_output": "Applies the design principles in references/visual-patterns.md: trims sentences to phrases, replaces the bullet list with a balanced visual pattern (e.g. numbered cards §8 with vertically-centered content so no empty card-bottoms, or a stat callout if there's a strong number), no emoji (numbers + typography). Packs and renders to verify the layout. Offers to design one slide first then roll the language out, rather than guessing across the whole deck.",
       "files": []
+    },
+    {
+      "id": 8,
+      "name": "add-painterly-imagery-to-deck",
+      "prompt": "My 25-slide deck at /tmp/deck/unpacked/ feels flat. Add rich painterly background art behind the slides — strong hero images on the title and section dividers, and faint atmospheric backgrounds on the content slides — using nano banana. Keep all the text and diagrams sharp. Brand color is teal #0f766e.",
+      "expected_output": "Reads references/nb2-imagery.md. Builds a manifest JSON (one {slide, role:hero|bg, slug, concept} per slide, concept = a metaphor not the title), then runs scripts/gen_nb2_images.py with --palette teal to generate PNGs (GEMINI_API_KEY + google-genai). QA-gates the set via a montage contact sheet for leaked text/off-concept/too-dark heroes and regenerates only misses. Composites onto a COPY with scripts/compose_nb2.py (--accent 0F766E, a light --num tint, --bg-alpha ~20000, --dividers JSON), insisting on the rules: never bake slide text into images; heroes art-directed with empty negative space for the title (luminance-checked); bg images extremely soft. Pilots 3 slides + renders before scaling to all 25, then packs and legibility-QAs the densest content slide and busiest divider. Uses the whitespace-tolerant strip regex (gotchas §13).",
+      "files": []
     }
   ]
 }

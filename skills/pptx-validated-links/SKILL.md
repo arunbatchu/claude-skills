@@ -1,6 +1,6 @@
 ---
 name: pptx-validated-links
-description: PowerPoint-craft toolkit for hyperlinks, visual slide design, and rebranding. Adds validated clickable hyperlinks from a TSV plan (HEAD/GET-checked, with LINK-DATA notes blocks + an auto-built categorized References slide); provides a copy-pasteable visual-pattern library (numbered cards, stat callouts, loop/pipeline diagrams, dividers) plus design principles; and rebrands a deck to a different brand's colors, logo, and attribution. Use this skill whenever the user wants to "add hyperlinks to a deck", "make terms clickable in PPTX", "validate links in a presentation", "build a references slide from links", "redesign these slides", "make this deck less text-heavy", "lay out a slide better", "rebrand this deck", "make a <brand> version of this deck", "change the brand colors of this PPTX", or "swap the logo on these slides". Pairs with anthropic-skills:pptx which handles unpack/pack.
+description: PowerPoint-craft toolkit for hyperlinks, visual slide design, rebranding, and painterly imagery. Adds validated clickable hyperlinks from a TSV plan (HEAD/GET-checked, with LINK-DATA notes + an auto-built categorized References slide); a copy-pasteable visual-pattern library (numbered cards, stat callouts, loop/pipeline diagrams, dividers) plus design principles; rebrands a deck to another brand's colors, logo, and attribution; and composites painterly AI-generated hero/background art (Gemini 3 Pro Image / "nano banana") behind slides, keeping text and diagrams crisp vector. Use whenever the user wants to "add hyperlinks to a deck", "make terms clickable in PPTX", "validate links in a presentation", "build a references slide", "redesign these slides", "make this deck less text-heavy", "rebrand this deck", "make a <brand> version of this deck", "swap the logo on these slides", "add imagery/backgrounds to these slides", or "make the slides more visual". Pairs with anthropic-skills:pptx for unpack/pack.
 ---
 
 # PPTX Validated Links
@@ -99,6 +99,7 @@ See [references/pptx-gotchas.md](references/pptx-gotchas.md) for the non-obvious
 - Filename casing matters — `notesSlide`, not `notesslide`
 - PowerPoint silently renumbers slide files on re-save — locate by content, not filename
 - Card-layout shapes need ~80,000 EMU clearance below hyperlinked term shapes
+- Match/strip regexes must tolerate whitespace — unpack pretty-prints, generated XML is minified (§13)
 
 ## Visual patterns library
 
@@ -116,6 +117,30 @@ All patterns use named brand-color placeholders; recolor by global find-replace.
 ## Rebranding an existing deck
 
 To produce a same-content copy in a different brand (colors, logo, attribution), use `scripts/rebrand_deck.py` and see [references/rebrand-recipe.md](references/rebrand-recipe.md). Key points: swap the brand primary AND the tint fills / divider numeral / index numeral / alert-callout trio (not just the primary); the title color lives in the slideMaster, so the master is swapped too; the theme `hlink` color is swapped for hyperlinks; and the logo box is resized to the old logo's footprint so a wide wordmark doesn't stretch and long titles still clear it. To keep a rebrand non-public: private repo + keep it out of any web-served `public/` folder.
+
+## Painterly conceptual imagery (NB2 / Gemini 3 Pro Image)
+
+To add rich painterly *atmosphere* to a deck — full-bleed hero art behind title/divider
+slides and faint watermark backgrounds behind content — without harming legibility or
+teaching value, see [references/nb2-imagery.md](references/nb2-imagery.md). The core
+rule: **art carries mood/metaphor only; all text, diagrams, stats and links stay crisp
+vector — never bake slide text into a generated image.**
+
+```bash
+# 1. Generate one image per slide from a manifest (caches; re-run fills gaps). Needs GEMINI_API_KEY.
+python scripts/gen_nb2_images.py --manifest m.json \
+    --palette "deep teal (#0f766e) and warm amber (#d97706)" --outdir /tmp/nb2/teal
+# 2. QA-gate: montage *.png into a contact sheet, eyeball for leaked text / off-concept / dark heroes
+# 3. Composite onto a COPY of the unpacked deck (heroes opaque + divider text re-laid; content faint)
+python scripts/compose_nb2.py --unpacked copy/ --manifest m.json --imgdir /tmp/nb2/teal \
+    --accent 0F766E --num 9FD8CC --bg-alpha 20000 --dividers dividers.json
+```
+
+Manifest = JSON list of `{slide, role:"hero"|"bg", slug, concept}` (concept is a *metaphor*
+phrase, not the slide title). Generate a separate palette set per brand — don't recolor,
+regenerate. Pilot 3 slides (title, divider, dense content) and render before scaling to all.
+The two things that go wrong: hero text-zone not left empty (art-direct negative space +
+luminance-check), and `bg` images not soft enough (say "extremely soft, low-contrast, airy").
 
 ## Known limitations
 
@@ -141,5 +166,7 @@ To produce a same-content copy in a different brand (colors, logo, attribution),
 | `scripts/build_references.py` | Aggregates LINK-DATA → References slide(s) |
 | `scripts/recolor_hyperlinks.py` | Sets theme hlink/folHlink colors |
 | `scripts/rebrand_deck.py` | Color/logo/attribution swap to rebrand a deck |
+| `scripts/gen_nb2_images.py` | Manifest → painterly per-slide PNGs (Gemini 3 Pro Image) |
+| `scripts/compose_nb2.py` | Composite hero/background art into an unpacked deck |
 
-All scripts are CLI-runnable with `--help`. Dependencies: Python 3.10+ standard library only — no `python-pptx`, no external packages. Slide XML is edited directly via regex.
+All scripts are CLI-runnable with `--help`. Dependencies: Python 3.10+ standard library only — **except** `gen_nb2_images.py` needs `google-genai` + `GEMINI_API_KEY` (image generation) and the luminance check in `references/nb2-imagery.md` needs `Pillow`. Slide XML is edited directly via regex.
