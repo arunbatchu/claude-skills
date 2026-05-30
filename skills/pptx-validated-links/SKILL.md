@@ -1,6 +1,6 @@
 ---
 name: pptx-validated-links
-description: PowerPoint-craft toolkit for hyperlinks, visual slide design, rebranding, and painterly imagery. Adds validated clickable hyperlinks from a TSV plan (HEAD/GET-checked, with LINK-DATA notes + an auto-built categorized References slide); a copy-pasteable visual-pattern library (numbered cards, stat callouts, loop/pipeline diagrams, dividers) plus design principles; rebrands a deck to another brand's colors, logo, and attribution; and composites painterly AI-generated hero/background art (Gemini 3 Pro Image / "nano banana") behind slides, keeping text and diagrams crisp vector. Use whenever the user wants to "add hyperlinks to a deck", "make terms clickable in PPTX", "validate links in a presentation", "build a references slide", "redesign these slides", "make this deck less text-heavy", "rebrand this deck", "make a <brand> version of this deck", "swap the logo on these slides", "add imagery/backgrounds to these slides", or "make the slides more visual". Pairs with anthropic-skills:pptx for unpack/pack.
+description: PowerPoint-craft toolkit for hyperlinks, visual slide design, rebranding, and AI imagery. Adds validated clickable hyperlinks from a TSV plan (HEAD/GET-checked, with LINK-DATA notes + an auto-built categorized References slide); a copy-pasteable visual-pattern library (numbered cards, stat callouts, loop/pipeline diagrams, dividers) plus design principles; rebrands a deck to another brand's colors, logo, and attribution; and composites painterly AI-generated art behind slides (Gemini 3 Pro Image / "nano banana") or renders whole slides as a stylized chalkboard/handwritten variant. Use whenever the user wants to "add hyperlinks to a deck", "validate links in a presentation", "build a references slide", "redesign these slides", "rebrand this deck", "make a <brand> version of this deck", "swap the logo on these slides", "add imagery/backgrounds to these slides", "make the slides more visual", or "render the deck in a chalkboard / blackboard / handwritten style". Pairs with anthropic-skills:pptx for unpack/pack.
 ---
 
 # PPTX Validated Links
@@ -142,6 +142,16 @@ regenerate. Pilot 3 slides (title, divider, dense content) and render before sca
 The two things that go wrong: hero text-zone not left empty (art-direct negative space +
 luminance-check), and `bg` images not soft enough (say "extremely soft, low-contrast, airy").
 
+**Full-slide stylized variant (chalkboard / blackboard / handwritten).** A second mode in
+the same reference doc: instead of art *behind* vector text, render *each whole slide as one
+styled image* (the title, bullets and diagram all hand-drawn — e.g. chalkboard). This is the
+one case where text IS in the image; `gemini-3-pro-image-preview` letters short slide text
+accurately, but QA spelling at high-res on the dense slides. Composite with
+`scripts/compose_fullbleed.py` (opaque overlay on a CLEAN vector base). Trade-off to state to
+the user: no live links, not editable — ship it as a separate *variant* file and keep the
+vector deck canonical. Art direction + workflow: [references/nb2-imagery.md](references/nb2-imagery.md)
+("Full-slide stylized rendering").
+
 ## Known limitations
 
 - **`build_references.py` slide-insertion is fragile** when the deck has been round-tripped through PowerPoint. Common failures: orphan notesSlide files from previous insertions, missing references, casing mismatches. Workaround: when these fail, rebuild the References slide by hand using the aggregator logic in `build_references.py:extract_link_data()` and `aggregate()` to pull the deduped link list, then write the slide XML directly. See `references/pptx-gotchas.md` §3 for the full 7-file insertion checklist.
@@ -168,5 +178,6 @@ luminance-check), and `bg` images not soft enough (say "extremely soft, low-cont
 | `scripts/rebrand_deck.py` | Color/logo/attribution swap to rebrand a deck |
 | `scripts/gen_nb2_images.py` | Manifest → painterly per-slide PNGs (Gemini 3 Pro Image) |
 | `scripts/compose_nb2.py` | Composite hero/background art into an unpacked deck |
+| `scripts/compose_fullbleed.py` | Overlay full-slide stylized images (chalkboard variant) opaque on each slide |
 
 All scripts are CLI-runnable with `--help`. Dependencies: Python 3.10+ standard library only — **except** `gen_nb2_images.py` needs `google-genai` + `GEMINI_API_KEY` (image generation) and the luminance check in `references/nb2-imagery.md` needs `Pillow`. Slide XML is edited directly via regex.

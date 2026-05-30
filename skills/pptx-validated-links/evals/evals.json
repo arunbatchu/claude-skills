@@ -56,6 +56,13 @@
       "prompt": "My 25-slide deck at /tmp/deck/unpacked/ feels flat. Add rich painterly background art behind the slides — strong hero images on the title and section dividers, and faint atmospheric backgrounds on the content slides — using nano banana. Keep all the text and diagrams sharp. Brand color is teal #0f766e.",
       "expected_output": "Reads references/nb2-imagery.md. Builds a manifest JSON (one {slide, role:hero|bg, slug, concept} per slide, concept = a metaphor not the title), then runs scripts/gen_nb2_images.py with --palette teal to generate PNGs (GEMINI_API_KEY + google-genai). QA-gates the set via a montage contact sheet for leaked text/off-concept/too-dark heroes and regenerates only misses. Composites onto a COPY with scripts/compose_nb2.py (--accent 0F766E, a light --num tint, --bg-alpha ~20000, --dividers JSON), insisting on the rules: never bake slide text into images; heroes art-directed with empty negative space for the title (luminance-checked); bg images extremely soft. Pilots 3 slides + renders before scaling to all 25, then packs and legibility-QAs the densest content slide and busiest divider. Uses the whitespace-tolerant strip regex (gotchas §13).",
       "files": []
+    },
+    {
+      "id": 9,
+      "name": "render-deck-as-chalkboard-variant",
+      "prompt": "I love a chalkboard look — white chalk on a black board, blue and yellow accents, no frame, and the writing should look handwritten. Make a chalkboard version of my 25-slide deck at /tmp/deck/ (keep my normal deck as-is). Name it appropriately.",
+      "expected_output": "Recognizes the 'Full-slide stylized rendering' mode in references/nb2-imagery.md (not the painterly-background mode). Extracts each slide's real content with python-pptx, writes one prompt per slide = a shared chalkboard BASE (full-bleed dark slate, NO frame/border/easel; CASUAL HANDWRITTEN chalk lettering with correct spelling; white main + sky-blue/yellow accents) plus a per-slide CONTENT description. Pilots the handwriting on ~2 slides and vision-checks the style before generating all 25 (gemini-3-pro-image-preview). QA-gates spelling at high-res on the dense slides (model names, benchmarks, protocols) and regenerates misses. Overlays full-bleed with scripts/compose_fullbleed.py onto a CLEAN VECTOR base (not a painterly one), packs, renders, and verifies edge-to-edge coverage. States the trade-off (baked text -> no live links, not editable) and ships it as a SEPARATE variant file with its own version line (e.g. '... - Chalkboard V1.pptx'), leaving the canonical deck untouched.",
+      "files": []
     }
   ]
 }

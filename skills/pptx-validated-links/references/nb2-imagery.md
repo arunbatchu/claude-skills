@@ -86,3 +86,53 @@ left = list(im.crop((0,0,int(w*0.45),h)).get_flattened_data())
 avg = sum(left)/len(left); dark = sum(p<110 for p in left)/len(left)
 # keep if avg>165 and dark<0.12 (dark text will read); else regenerate
 ```
+
+---
+
+# Full-slide stylized rendering (e.g. chalkboard)
+
+A different mode from painterly backgrounds: here **each slide IS one styled image** —
+the title, the bullets, the diagram, all hand-drawn in a single aesthetic (chalkboard,
+blueprint, watercolor notebook, …). This is the ONE case where you DO render the slide's
+text inside the image. Modern `gemini-3-pro-image-preview` letters short slide text
+remarkably well — in practice it spelled model names, protocols and benchmarks (Opus 4.8,
+SWE-bench Pro, MCP/A2A/ACP/AGNTCY, GLM-5.1, MiniMax M2.7…) correctly across a 25-slide deck.
+
+**The trade-off, state it to the user up front:** the text is baked into a picture, so the
+slide loses live hyperlinks and isn't text-editable. Keep the vector deck (painterly or plain)
+as the canonical, editable version; ship the stylized one as a separate *variant* file (own
+version line, e.g. `… - Chalkboard V1.pptx`).
+
+## Workflow
+
+1. **Extract every slide's content** (`python-pptx` text dump) — title, bullets, numbers,
+   diagram labels. One image per slide must reproduce its real content.
+2. **One prompt per slide** = a shared `BASE` style prefix + that slide's `CONTENT —`
+   description (what to letter, what's a box/arrow/loop, which words are accent-colored).
+3. **Pilot the lettering on 2 slides first** (one text-dense, one diagram) and vision-check
+   the *style* before generating 25 — the handwriting/medium is the thing that's hard to dial in.
+4. **Generate all**, then **QA-gate at high resolution on the dense slides** — proper nouns,
+   version numbers and benchmarks are where any garble shows. Regenerate misses (cached by slug).
+5. **Overlay full-bleed** with `compose_fullbleed.py` onto a CLEAN VECTOR base deck (NOT the
+   painterly one — you'd carry both image sets and double the file size). It drops each image
+   as the LAST shape in the slide's `spTree`, opaque, sized to the slide, so it covers all
+   underlying vector content (which stays in the file for structure/notes but isn't shown).
+6. **Pack, render, eyeball** that each slide is edge-to-edge with no vector content or white
+   slide-margin peeking out.
+
+## Chalkboard art direction (what worked)
+
+- Surface: "a dark near-black slate filling the ENTIRE 16:9 frame edge to edge — **NO frame,
+  NO border, NO tray, NO easel, NO wall**, just the slate, full-bleed." (Models love to draw a
+  framed board on a classroom wall; forbid it explicitly.)
+- Lettering: "**CASUAL HANDWRITTEN** chalk hand-lettering — natural irregularity, slight slant,
+  varying letter sizes, NOT a printed typeface — yet clearly LEGIBLE with CORRECT SPELLING."
+  (Without "handwritten", it renders a neat near-printed chalk font.)
+- Palette: main text/boxes/arrows in **white** chalk; headings, key terms and stats in
+  **sky-blue** and **warm-yellow** chalk; nothing else. Map the deck's accent roles onto the two
+  accent colors (e.g. section numbers + stats = yellow, key terms = blue).
+- Let it add small chalk **doodles** (a robot, gears, a balance scale) — they sell the aesthetic
+  and cost nothing since there's no real estate competition with vector content.
+
+Scripts for this mode: `gen_nb2_images.py` (same generator; put the chalk BASE + per-slide
+CONTENT in the manifest concepts) and `compose_fullbleed.py` (the overlay).
