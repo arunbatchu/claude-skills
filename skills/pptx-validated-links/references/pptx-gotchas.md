@@ -188,3 +188,18 @@ Even when an entity name (employer, school, founder role, citation-context insti
 - People whose work IS the topic (link John McCarthy when teaching AI history)
 
 **Rule of thumb:** "would a learner click this to deepen understanding of the *topic*, or just to satisfy curiosity about the *speaker*?" If the latter, skip — keeps the deck's clickability promise meaningful.
+
+## 12. Double `<?xml?>` declaration when a helper double-wraps a slide
+
+When generating slides with helper functions, a `slide_xml(body)` wrapper that
+prepends `<?xml ...?>` + `<p:sld>` must receive the BODY shapes — not an already-
+wrapped slide. A divider helper that returns `slide_xml(...)` and is then passed
+to a `write_slide(num, body)` that calls `slide_xml(body)` AGAIN produces two XML
+declarations:
+
+  ppt/slides/slideN.xml: Line 6: XML declaration allowed only at the start of the document
+
+**How to apply:** decide one layer owns the wrap. Helpers that compose a slide
+should return BODY shapes (a string of `<p:sp>`/`<p:pic>`); the single writer wraps
+once with `slide_xml()`. Audit any helper whose name implies a full slide
+("divider_slide", "title_slide") — it likely already wraps; don't wrap it again.

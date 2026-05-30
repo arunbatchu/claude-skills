@@ -35,6 +35,20 @@
       "prompt": "Add hyperlinks to the speaker bio slide (slide 4) — link each past employer (Google, Microsoft, MIT) and university (Stanford, Berkeley) to their official website. The deck is at /tmp/test-deck/.",
       "expected_output": "Refuses or pushes back per the 'What NOT to link' guidance in SKILL.md and references/pptx-gotchas.md §11. Explains that bio entities (employers, schools, founder roles, citation-context institutions) shouldn't get hyperlinks even when they validate, because the links serve speaker curiosity rather than topic understanding. Offers the alternative: only link entities a learner would click to deepen understanding of the subject matter. If the user insists, proceeds but flags it.",
       "files": []
+    },
+    {
+      "id": 6,
+      "name": "rebrand-deck-to-new-brand",
+      "prompt": "I have a deck at /tmp/acme-deck/Quarterly Review.pptx that uses a navy blue (#1B2A4A) accent and our old logo. Make a copy rebranded for our new identity: brand color is forest green #1B5E20, swap in the new logo at /tmp/brand/acme-green-logo.png, and change the title-slide byline from 'Acme Corp' to 'Acme (a Globex company)'. Keep it private.",
+      "expected_output": "Unpacks with anthropic-skills:pptx, then uses scripts/rebrand_deck.py per references/rebrand-recipe.md: --color for the navy→green swap (and reminds to also swap any tint fills / index numerals / alert-callout colors, not just the primary), --new-logo with --old-logo-media + --old-logo-xfrm + --logo-height to fit the new logo to the old footprint without stretching, and --set for the byline. Notes the slideMaster carries the title color and the theme hlink color are both swapped. clean.py + pack.py + a visual render check. 'Keep it private' → private repo, out of any web-served public/ folder.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "name": "redesign-text-heavy-slide",
+      "prompt": "This slide is drab and text-heavy — a title plus three bullet paragraphs, with the whole bottom half empty. Make it look good. /tmp/deck/unpacked/ppt/slides/slide12.xml",
+      "expected_output": "Applies the design principles in references/visual-patterns.md: trims sentences to phrases, replaces the bullet list with a balanced visual pattern (e.g. numbered cards §8 with vertically-centered content so no empty card-bottoms, or a stat callout if there's a strong number), no emoji (numbers + typography). Packs and renders to verify the layout. Offers to design one slide first then roll the language out, rather than guessing across the whole deck.",
+      "files": []
     }
   ]
 }

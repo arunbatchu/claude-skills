@@ -1,6 +1,6 @@
 ---
 name: pptx-validated-links
-description: Adds validated, clickable hyperlinks to PowerPoint decks from a TSV plan, validates every URL with HTTP HEAD/GET before insertion, appends machine-readable LINK-DATA blocks to speaker notes, and auto-builds a categorized References slide from the aggregate. Use this skill whenever the user wants to "add hyperlinks to a deck", "make terms clickable in PPTX", "validate links in a presentation", "build a references slide from links", "link acronyms to definitions", "turn glossary terms into clickable references", or otherwise wants to turn a PPTX into a self-service reference where learners click through to authoritative sources. Pairs with the anthropic-skills:pptx skill which handles unpack/pack — this skill handles the hyperlink workflow only.
+description: PowerPoint-craft toolkit for hyperlinks, visual slide design, and rebranding. Adds validated clickable hyperlinks from a TSV plan (HEAD/GET-checked, with LINK-DATA notes blocks + an auto-built categorized References slide); provides a copy-pasteable visual-pattern library (numbered cards, stat callouts, loop/pipeline diagrams, dividers) plus design principles; and rebrands a deck to a different brand's colors, logo, and attribution. Use this skill whenever the user wants to "add hyperlinks to a deck", "make terms clickable in PPTX", "validate links in a presentation", "build a references slide from links", "redesign these slides", "make this deck less text-heavy", "lay out a slide better", "rebrand this deck", "make a <brand> version of this deck", "change the brand colors of this PPTX", or "swap the logo on these slides". Pairs with anthropic-skills:pptx which handles unpack/pack.
 ---
 
 # PPTX Validated Links
@@ -102,17 +102,20 @@ See [references/pptx-gotchas.md](references/pptx-gotchas.md) for the non-obvious
 
 ## Visual patterns library
 
-When building new slides that need a recurring visual structure, see [references/visual-patterns.md](references/visual-patterns.md) for copy-pasteable PPTX XML snippets:
+When building new slides that need a recurring visual structure, see [references/visual-patterns.md](references/visual-patterns.md) — it opens with **design principles** (don't leave empty card-bottoms; numbers+typography over emoji for pro decks; trim to phrases; real diagrams over text arrows; one alert color) then copy-pasteable PPTX XML snippets:
 
-- Emoji voting cards (4 cards in a row)
-- DevOps loop boxes (3 stacked boxes with down-arrows + continuous-loop indicator)
-- Timeline strip (5 milestone boxes with arrows between)
-- Spectrum bar with axis label (deterministic ↔ non-deterministic etc.)
-- 4-quadrant grid (2x2 layout for "best practices" type slides)
-- "Watch in X" yellow callout box
-- 3-column MECE layout
+- **Numbered card** (no-emoji workhorse — the default for "N things" slides)
+- **Cyclic process diagram** (real loop with corner nodes + arrows) and **horizontal pipeline** (flow)
+- **Big-stat callout** (make one strong number the focal point)
+- **Section divider with big faded part-number**
+- DevOps loop boxes, timeline strip, spectrum bar, 4-quadrant grid, "Watch in X" yellow callout, 3-column MECE
+- Emoji voting cards — *playful contexts only* (room polls); use numbered cards otherwise
 
-All patterns use UMN maroon (`#7A0019`) by default; recolor by global find-replace.
+All patterns use named brand-color placeholders; recolor by global find-replace.
+
+## Rebranding an existing deck
+
+To produce a same-content copy in a different brand (colors, logo, attribution), use `scripts/rebrand_deck.py` and see [references/rebrand-recipe.md](references/rebrand-recipe.md). Key points: swap the brand primary AND the tint fills / divider numeral / index numeral / alert-callout trio (not just the primary); the title color lives in the slideMaster, so the master is swapped too; the theme `hlink` color is swapped for hyperlinks; and the logo box is resized to the old logo's footprint so a wide wordmark doesn't stretch and long titles still clear it. To keep a rebrand non-public: private repo + keep it out of any web-served `public/` folder.
 
 ## Known limitations
 
@@ -137,5 +140,6 @@ All patterns use UMN maroon (`#7A0019`) by default; recolor by global find-repla
 | `scripts/append_link_data.py` | Appends LINK-DATA notes blocks |
 | `scripts/build_references.py` | Aggregates LINK-DATA → References slide(s) |
 | `scripts/recolor_hyperlinks.py` | Sets theme hlink/folHlink colors |
+| `scripts/rebrand_deck.py` | Color/logo/attribution swap to rebrand a deck |
 
 All scripts are CLI-runnable with `--help`. Dependencies: Python 3.10+ standard library only — no `python-pptx`, no external packages. Slide XML is edited directly via regex.

@@ -21,6 +21,17 @@ All snippets use `#7A0019` as the working example for the brand-primary color (i
 
 For your brand: pick `BRAND_PRIMARY`, then derive `BRAND_PRIMARY_TINT` as ~10% mix with white. The alert palette can stay neutral yellow regardless of brand.
 
+## Design principles (learned the hard way)
+
+A real client redesign produced these — they matter more than any single pattern:
+
+- **Don't leave empty card-bottoms or empty slide-bottoms.** The #1 "looks unfinished" tell is content jammed in the top 40% with a void below. Fix: vertically center card content (`anchor="ctr"`), size cards to fill the body band, or add a payoff line.
+- **Numbers + typography beat icons** for a professional audience. A big soft-tint index numeral (e.g. `1 2 3 4` in a light brand tint) is a cleaner anchor than emoji. Emoji read as casual — reserve them for genuinely playful moments (a room poll), not a client deck. (See §1 emoji cards vs §8 numbered cards.)
+- **Trim to phrases, not sentences.** Move the long explanatory sentence into a one-line subtitle or speaker notes; the card gets a label + a short payoff.
+- **Replace fake diagrams with real ones.** A process written as `A → B → C → D` text is weak; draw it (§9 cyclic loop, §10 pipeline).
+- **Make the strong number the focal point.** A buried "69.2%" should become a big-stat callout (§11), not a clause in a bullet.
+- **Reserve ONE alert color.** Use the yellow/amber callout (§6) for the single "watch / caution" box per slide-set; everything else stays brand-primary. Too many alert colors = noise.
+
 ## Common conventions
 
 - **Card shape**: `roundRect` with `adj fmla="val 12000-25000"` for corner radius, `ln w="12700"` for border weight.
@@ -32,7 +43,7 @@ For your brand: pick `BRAND_PRIMARY`, then derive `BRAND_PRIMARY_TINT` as ~10% m
 
 ## 1. Emoji voting card
 
-Use case: poll questions, sentiment selection, quick room-engagement moments.
+Use case: poll questions, sentiment selection, quick room-engagement moments. **Playful contexts only** — for a professional/client deck use the numbered card (§8) instead; emoji read as casual.
 
 Pattern: 4 rounded rectangles in a row, each with a large emoji on top and a bold maroon label below.
 
@@ -274,13 +285,80 @@ Use case: showing 3 mutually-exclusive collectively-exhaustive buckets (e.g., Pa
 
 Layout math: 3 cols × 2,750,000 wide. Place at `X = 311700, 3211700, 6111700` (small gaps between).
 
-## Patterns I'd add next
+## 8. Numbered card (no-emoji workhorse)
 
-If you build more decks and notice recurring layouts, add them here. Candidates I see coming:
+Use case: any "N things" slide — building blocks, risks, lenses, steps. The **default** card for professional decks (prefer over §1 emoji cards). A big soft-tint index numeral anchors each card; content is vertically centered so there's no empty card-bottom.
 
-- **2-column comparison table** (used for MCP vs A2A — could be generalized)
-- **Stat callout** (big number, small label — for "1,200+ FDA-authorized devices" type emphasis)
-- **Quote slide** (single big quote, attribution below)
-- **Section divider with image overlay** (for chapter breaks)
+```xml
+<p:sp>
+  <p:nvSpPr><p:cNvPr id="{ID}" name="Card"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr>
+  <p:spPr>
+    <a:xfrm><a:off x="{X}" y="{Y}"/><a:ext cx="{W}" cy="{H}"/></a:xfrm>
+    <a:prstGeom prst="roundRect"><a:avLst><a:gd name="adj" fmla="val 9000"/></a:avLst></a:prstGeom>
+    <a:solidFill><a:srgbClr val="{TINT}"/></a:solidFill>
+    <a:ln w="12700"><a:solidFill><a:srgbClr val="{BRAND_PRIMARY}"/></a:solidFill></a:ln>
+  </p:spPr>
+  <p:txBody>
+    <a:bodyPr wrap="square" lIns="68575" tIns="45720" rIns="68575" bIns="45720" anchor="ctr"><a:noAutofit/></a:bodyPr>
+    <a:lstStyle/>
+    <a:p><a:pPr algn="ctr"><a:spcAft><a:spcPts val="60"/></a:spcAft><a:buNone/></a:pPr>
+      <a:r><a:rPr lang="en" sz="3600" b="1"><a:solidFill><a:srgbClr val="{INDEX_TINT}"/></a:solidFill></a:rPr><a:t>{N}</a:t></a:r></a:p>
+    <a:p><a:pPr algn="ctr"><a:spcAft><a:spcPts val="120"/></a:spcAft><a:buNone/></a:pPr>
+      <a:r><a:rPr lang="en" sz="1600" b="1"><a:solidFill><a:srgbClr val="{BRAND_PRIMARY}"/></a:solidFill></a:rPr><a:t>{TITLE}</a:t></a:r></a:p>
+    <a:p><a:pPr algn="ctr"><a:spcAft><a:spcPts val="160"/></a:spcAft><a:buNone/></a:pPr>
+      <a:r><a:rPr lang="en" sz="1200"><a:solidFill><a:srgbClr val="444444"/></a:solidFill></a:rPr><a:t>{DESC}</a:t></a:r></a:p>
+    <a:p><a:pPr algn="ctr"><a:buNone/></a:pPr>
+      <a:r><a:rPr lang="en" sz="1050" i="1"><a:solidFill><a:srgbClr val="555555"/></a:solidFill></a:rPr><a:t>{PAYOFF}</a:t></a:r></a:p>
+  </p:txBody>
+</p:sp>
+```
 
-When adding a pattern: include the use case, the XML snippet with `{PLACEHOLDERS}`, and layout math (positions, sizes, gaps).
+`INDEX_TINT` = a light tint of the brand (maroon `C9B7B9`, teal `9FD8CC`). Row of 4: `W=1950000`, `GAP=230000`, `X0=311700`, `Y=1560000`, `H=2350000`. 2×2 grid: `W≈4150000`, `H≈1400000`, positions `(311700|4682400)×(1180000|2780000)`.
+
+## 9. Cyclic process diagram (real loop, not text)
+
+Use case: a repeating loop (perceive→plan→act→observe; PDCA). Four nodes in a rectangular cycle with arrows; a label in the dead center. Reads as a true loop without custom curved-arrow geometry.
+
+- 4 `node` shapes (roundRect, `nw≈1650000 nh≈560000`) at corners: TL, TR, BR, BL.
+- 4 straight arrows between them, clockwise: `rightArrow` (TL→TR, top), `downArrow` (TR→BR, right), `leftArrow` (BR→BL, bottom), `upArrow` (BL→TL, left).
+- Center textbox (small, italic, gray) with the invariant, e.g. "within guardrails".
+- Caption textbox to the right of the loop for the takeaway.
+
+Arrow placement: top/bottom arrows sit at `y = node_top + nh/2` between the two node inner edges; left/right arrows at `x = node_left + nw/2` (left pair) / right pair, between the node vertical gap. Tune `cx/cy` per arrow (`500000×190000` horizontal, `180000×360000` vertical).
+
+## 10. Horizontal pipeline (flow)
+
+Use case: an ordered pipeline (Planner→Architect→Implementer→Tester→Reviewer; intake→...→ship). N nodes with right-arrows between.
+
+- `node` roundRects (`nw=1480000 nh=600000`), `step = nw + 280000`, `x = X0 + i*step`.
+- `rightArrow` between each pair at `x = node_x + nw + 30000`, `y = node_y + 210000`, size `200000×180000`.
+- 5 nodes across ≈ 8.5M EMU — fits the body width.
+
+## 11. Big-stat callout (focal number)
+
+Use case: make ONE strong number the focal point (a benchmark, an adoption %). A tint roundRect with a huge number and a small label.
+
+```xml
+<p:sp> ... roundRect, fill {TINT}, border {BRAND_PRIMARY}, anchor="ctr" ...
+  <p:txBody> ...
+    <a:p><a:pPr algn="ctr"><a:spcAft><a:spcPts val="100"/></a:spcAft><a:buNone/></a:pPr>
+      <a:r><a:rPr lang="en" sz="4200" b="1"><a:solidFill><a:srgbClr val="{BRAND_PRIMARY}"/></a:solidFill></a:rPr><a:t>{BIG}</a:t></a:r></a:p>
+    <a:p><a:pPr algn="ctr"><a:buNone/></a:pPr>
+      <a:r><a:rPr lang="en" sz="1300"><a:solidFill><a:srgbClr val="444444"/></a:solidFill></a:rPr><a:t>{LABEL}</a:t></a:r></a:p>
+  </p:txBody>
+</p:sp>
+```
+
+Compose two side-by-side for a "two key numbers" slide; pair one with a §6 amber callout for "the number is real, BUT…".
+
+## 12. Section divider with big faded part-number
+
+Use case: part dividers. A huge, very-light brand-tint numeral behind a small part-label and the part title — strong and unmistakable.
+
+- Big numeral textbox: `sz=8000`, `b=1`, color = very light brand tint (maroon `EEDDDF`, teal `D6F5EE`), centered, `y≈1250000`.
+- Part label: `sz=1600 b=1` gray, centered, `y≈2750000`.
+- Title: `sz=3200 b=1` brand-primary, centered, `y≈3120000`.
+
+## Patterns to add next
+
+When you notice a recurring layout, add it: use case + XML snippet with `{PLACEHOLDERS}` + layout math. Candidates: 2-column comparison table, quote slide, half-bleed image + content overlay.
