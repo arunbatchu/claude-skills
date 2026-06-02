@@ -125,9 +125,18 @@ version line, e.g. `… - Chalkboard V1.pptx`).
 - Surface: "a dark near-black slate filling the ENTIRE 16:9 frame edge to edge — **NO frame,
   NO border, NO tray, NO easel, NO wall**, just the slate, full-bleed." (Models love to draw a
   framed board on a classroom wall; forbid it explicitly.)
-- Lettering: "**CASUAL HANDWRITTEN** chalk hand-lettering — natural irregularity, slight slant,
-  varying letter sizes, NOT a printed typeface — yet clearly LEGIBLE with CORRECT SPELLING."
-  (Without "handwritten", it renders a neat near-printed chalk font.)
+- Lettering — **dial the register deliberately, it's the #1 thing users react to.** Pilot 2-3
+  hands on one representative slide and let the user pick before rendering all 25:
+  - "**CASUAL HANDWRITTEN**" → bubbly, rounded, marker / Comic-Sans feel. Reads playful; most
+    users find it "too much" for a professional teaching deck.
+  - "**NEAT HANDWRITTEN chalk printing — a tidy hand like a careful engineer's or draftsman's
+    lettering: mostly upright, evenly sized, understated; clearly hand-written but NOT bubbly,
+    NOT rounded, NOT a marker or Comic-Sans look, NOT cartoonish**" → calm, restrained, the
+    safe default that still reads as chalk-by-hand. *(Preferred in practice.)*
+  - "**ELEGANT NATURAL HANDWRITING — refined adult hand, subtle slant, lightly-connected
+    strokes**" → sophisticated italic-leaning script; nice for lighter decks.
+  Always add "clearly LEGIBLE with CORRECT SPELLING." Negative constraints (NOT bubbly / NOT
+  Comic-Sans / NOT cartoonish) matter as much as the positive description.
 - Palette: main text/boxes/arrows in **white** chalk; headings, key terms and stats in
   **sky-blue** and **warm-yellow** chalk; nothing else. Map the deck's accent roles onto the two
   accent colors (e.g. section numbers + stats = yellow, key terms = blue).
